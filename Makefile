@@ -4,14 +4,14 @@ CFLAGS  = -g -Wall
 default: lambda
 
 
-hash:		linklist.o hashtable.o testtable.o
-		$(CC) $(CFLAGS) -o hash linklist.o hashtable.o testtable.o
+hash:		hashtable.o testtable.o
+		$(CC) $(CFLAGS) -o hash hashtable.o testtable.o
 
 list:		linklist.o testlist.o
 		$(CC) $(CFLAGS) -o list linklist.o testlist.o
 
-lambda:		common.o lambdatest.o sexpr.o parser.o hashtable.o linklist.o
-		$(CC) $(CFLAGS) -o lambda common.o sexpr.o lambdatest.o parser.o hashtable.o linklist.o
+lambda:		common.o lambdatest.o sexpr.o parser.o hashtable.o
+		$(CC) $(CFLAGS) -o lambda common.o sexpr.o lambdatest.o parser.o hashtable.o
 
 linklist.o:	linklist.c linklist.h
 		$(CC) $(CFLAGS) -o linklist.o -c linklist.c
@@ -38,4 +38,4 @@ parser.o:	parser.c parser.h
 		$(CC) $(CFLAGS) -o parser.o -c parser.c
 
 clean:
-		rm -f testhash testlist lambda *.o *~
+		rm -f hash list lambda *.o *~

@@ -39,7 +39,7 @@ void testparse() {
 
 void repl() {
   char buffer[256];
-  SymbolTable *ST = ht_create();
+  SymbolTable *ST = ht_create(8);
   SExpression *test, *result;
   do {
     printf(">>> ");

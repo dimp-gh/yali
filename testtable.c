@@ -4,7 +4,7 @@
 #include <assert.h>
 
 void testtable() {
-  HashTable *table = ht_create();
+  HashTable *table = ht_create(16);
   assert(ht_lookup(table, "Doe") == NULL);
   table = ht_insert(table, "Francesko", (void *) strdup("Italy"));
   table = ht_insert(table, "Brian", (void *) strdup("America"));

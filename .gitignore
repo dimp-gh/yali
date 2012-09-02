@@ -1,7 +1,7 @@
 *.o
 lambda
-testhash
-testlist
+hash
+list
 *~
 *#*
 #*
