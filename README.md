@@ -1,8 +1,6 @@
-#### Picolisp ####
-Picolisp is _extremely_ small Lisp interpreter. Designed, first of all, for calculating factorials.
+Yali (Yep, Another Lisp Interpreter) is _extremely_ small Lisp interpreter. Designed, first of all, for calculating factorials.
 
 Usage:  
-`cd picolisp`  
 `make`  
 `./lambda`  
 

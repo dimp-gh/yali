@@ -8,7 +8,7 @@
 
 bag_node *bag_insert(bag_node *head, char *key, void *value) {
   DEBUG("Inserting new element in list");
-  bag_node *new = (bag_node *) malloc(sizeof(bag_node));
+  bag_node *new = malloc(sizeof(bag_node));
   new->key = strdup(key);
   new->data = value;
   new->next = NULL;
@@ -60,6 +60,7 @@ bag_node *bag_remove(bag_node *head, char *key) {
   }
 }
 
+
 void *bag_lookup(bag_node *head, char *key) {
   DEBUG("Searching in list");
   bag_node *current = head;
@@ -88,13 +89,18 @@ void bag_clear_list(bag_node *head) {
 }
 
 
-void _print_list(bag_node *head) {
+void _print_list(bag_node *head, char *(*repr)(void *)) {
   bag_node *current = head;
+  char *buffer;
   if (!current)
     printf("<Empty list>.\n");
   else {
     while (current) {
-      printf("%s - %p.\n", current->key, current->data);
+      buffer = repr(current->data);
+      if (!buffer)
+	buffer = strdup("No representation");
+      printf("%s - %p:%s.\n", current->key, current->data, buffer);
+      free(buffer);
       current = current->next;
     }
   }
@@ -126,7 +132,11 @@ HashTable *ht_create(int _bag_count) {
 
 HashTable *ht_insert(HashTable *table, char *key, void *data) {
   DEBUG("Inserting element in hashtable");
+  if (!table)
+    return table;
   int bag = table->hash(key, table->bag_count);
+  if (bag == -1 || !data)
+    return table;
   bag_node *head = table->bags[bag];
   head = bag_insert(head, key, data);
   table->bags[bag] = head;
@@ -135,6 +145,8 @@ HashTable *ht_insert(HashTable *table, char *key, void *data) {
 
 
 void *ht_lookup(HashTable *table, char *key) {
+  if (!table)
+    return NULL;
   int hash = table->hash(key, table->bag_count);
   if (hash == -1)
     return NULL;
@@ -144,6 +156,8 @@ void *ht_lookup(HashTable *table, char *key) {
 
 
 HashTable *ht_remove(HashTable *table, char *key) {
+  if (!table)
+    return NULL;
   int hash = table->hash(key, table->bag_count);
   if (hash == -1)
     return table;
@@ -153,17 +167,20 @@ HashTable *ht_remove(HashTable *table, char *key) {
 
 
 void ht_delete_all(HashTable *table) {
+  if (!table)
+    return;
   int i;
   for (i = 0; i < table->bag_count; i++)
     bag_clear_list(table->bags[i]);
   free(table);
 }
 
-void _print_table(HashTable *table) {
+
+void _print_table(HashTable *table, char *(*repr)(void *)) {
   int i;
   for (i = 0; i < table->bag_count; i++) {
     printf("Bag #%d:\n", i); 
-    _print_list(table->bags[i]);
+    _print_list(table->bags[i], repr);
   }
 }
 

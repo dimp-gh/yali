@@ -3,8 +3,12 @@
 #include "hashtable.h"
 #include <assert.h>
 
+char *repr(void *data) {
+  return strdup((char *) data);
+}
+
 void testtable() {
-  HashTable *table = ht_create(16);
+  HashTable *table = ht_create(4);
   assert(ht_lookup(table, "Doe") == NULL);
   table = ht_insert(table, "Francesko", (void *) strdup("Italy"));
   table = ht_insert(table, "Brian", (void *) strdup("America"));
@@ -19,6 +23,7 @@ void testtable() {
   table = ht_remove(table, "Mongo");
   result = ht_lookup(table, "Mongo");
   assert(result == NULL);
+  //_print_table(table, repr);
   ht_delete_all(table);
   printf("All hash-table tests passed.\n");
 }
