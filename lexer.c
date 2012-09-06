@@ -45,7 +45,6 @@ Token_node *alloc_token(enum Token_type type) {
 }
 
 enum Token_type guess_type(char *str) {
-  printf("Guessing type of <%s>.\n", str);
   if (is_nil(str))
     return token_nil;
   else if (is_bool(str))

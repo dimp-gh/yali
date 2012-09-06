@@ -5,23 +5,27 @@
 typedef enum { false, true } bool;
 
 enum Term_type {
-  tt_list,
+  tt_pair,
   tt_int,
   tt_nil,
   tt_bool,
+  tt_lambda,
   tt_mention
 };
 
+struct List {};
+struct Lambda {}; 
+
 typedef struct sexp {
-  union {
-    long int intval;
-    struct sexp *exprval;
-    void *nilval;
-    bool boolval;
-    char *mentval;
-  };
   enum Term_type type;
-  struct sexp *next;
+  union {
+    List *pair;
+    long int integer;
+    void *nil;
+    bool boolean;
+    Lambda *lambda;
+    char *mention;
+  };
 } SExpression;
 
 
@@ -30,6 +34,11 @@ typedef struct {
   SExpression *args;
   SExpression *body;
 } Lambda;
+
+typedef struct {
+  struct sexp *value;
+  struct sexp *next;
+} List;
 
 typedef HashTable SymbolTable;
 
