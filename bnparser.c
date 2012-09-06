@@ -48,24 +48,19 @@ Token_node *_parse_expression(Token_node *token_head, SExpression *root) {
     case token_open_paren:
       new = alloc_term(tt_pair);
       current = _parse_expression(current->next, new);
-      UPDATE_ROOT_LAST(root, last, new);
+      if (new->pair->value->type == tt_mention &&
+	  strcmp(new->pair->value->mention, "lambda") == 0) {
+	SExpression *l = alloc_term(tt_lambda);
+	l->lambda->args = new->pair->next->pair->value;
+	l->lambda->body = new->pair->next->pair->next->pair->value;
+	UPDATE_ROOT_LAST(root, last, l);
+      } else
+	UPDATE_ROOT_LAST(root, last, new);
       break;
     case token_id:
-      if (strcmp(current->token->strval, "lambda") != 0) {
-	new = alloc_term(tt_mention);
-	new->mention = strdup(current->token->strval);
-	UPDATE_ROOT_LAST(root, last, new);
-      } else {
-	new = alloc_term(tt_lambda);
-	SExpression *args, *body;
-	args = alloc_term(tt_pair);
-	current = _parse_expression(current->next->next, args);
-	body = alloc_term(tt_pair);
-	current = _parse_expression(current->next->next, body);
-	new->lambda->args = args;
-	new->lambda->body = body;
-	UPDATE_ROOT_LAST(root, last, new);
-      }
+      new = alloc_term(tt_mention);
+      new->mention = strdup(current->token->strval);
+      UPDATE_ROOT_LAST(root, last, new);
       break;
     default:
       printf("Unknown token, alert!\n");
