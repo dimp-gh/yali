@@ -16,6 +16,9 @@ lambda:		common.o lambdatest.o sexpr.o parser.o hashtable.o
 lex:		lexer.o lextest.o
 		$(CC) $(CFLAGS) -o lex lexer.o lextest.o 
 
+parse:		bnparsertest.o bnparser.o lexer.o sexpr.o common.o
+		$(CC) $(CFLAGS) -o parse bnparsertest.o bnparser.o lexer.o sexpr.o common.o 
+
 linklist.o:	linklist.c linklist.h
 		$(CC) $(CFLAGS) -o linklist.o -c linklist.c
 
@@ -45,6 +48,12 @@ lexer.o:	lexer.c lexer.h
 
 lextest.o:	lextest.c
 		$(CC) $(CFLAGS) -o lextest.o -c lextest.c
+
+bnparser.o:	bnparser.c bnparser.h
+		$(CC) $(CFLAGS) -o bnparser.o -c bnparser.c
+
+bnparsertest.o:	bnparsertest.c
+		$(CC) $(CFLAGS) -o bnparsertest.o -c bnparsertest.c
 
 clean:
 		rm -f hash list lex lambda *.o *~
