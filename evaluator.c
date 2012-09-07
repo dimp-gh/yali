@@ -1,9 +1,13 @@
 #include "evaluator.h"
+#include "common.h"
+#include "stddef.h"
+#include <string.h>
+#include <stdio.h>
 
 
 SExpression *eval(SExpression *expr, SymbolTable *ST) {
   /*
-   * if SExpression is list AND
+   * if SExpression is pair AND
    *    head of SExpression is lambda or function name:
    *      handle it as function call: eval all following terms and apply function to them.
    * else if SExpression is special form call:
@@ -24,34 +28,41 @@ SExpression *eval(SExpression *expr, SymbolTable *ST) {
    */
   if (!expr)
     return NULL;
-  else if (expr->type != tt_list) // if expression is one elementary-typed element
+  printf("Evaluating "); print_typed_expression(expr);
+  if (expr->type == tt_mention)
+    return ht_lookup(ST, expr->mention);
+  else if (expr->type == tt_int ||
+	   expr->type == tt_bool)
     return expr;
-  else if (!expr->exprval) // if expression is empty list
+  else if (expr->type == tt_lambda)
+    return expr;
+  else if (expr->type != tt_pair) // if expression is one elementary-typed element
+    return expr;
+  else if (!expr->pair->value) // if expression is empty list
     return NULL;
-  else { // if expression is list and isn't empty
-    SExpression *head = expr->exprval, *tail = head->next;
+  else { // if expression is pair and isn't empty
+    SExpression *head = expr->pair->value, *tail = expr->pair->next;
     if (head->type != tt_mention) // if head of list is not function call
       return NULL;
-    char *call = head->mentval;
+    char *call = head->mention;
     // checking for special forms
     if (strcmp(call, "define") == 0)
       return handle_define(tail, ST);
     else if (strcmp(call, "if") == 0)
       return handle_if(tail, ST);
-    else if (strcmp(call, "eq") == 0)
+    /*    else if (strcmp(call, "eq") == 0)
       return handle_eq(tail, ST);
     else if (strcmp(call, "dec") == 0)
       return handle_dec(tail, ST);
     else if (strcmp(call, "*") == 0)
-      return handle_mul(tail, ST);
+    return handle_mul(tail, ST);*/
     // special forms check end
     else {
-      Lambda *lambda = ht_lookup(ST, call);
-      if (!lambda) // undefined name
+      SExpression *function = ht_lookup(ST, call);
+      if (!function) // undefined name
 	return NULL;
-      SExpression *args = alloc_term(tt_list);
-      args->exprval = duplicate_term(tail);
-      return apply(lambda, args, ST);
+      SExpression *args = duplicate_expression(tail);
+      return apply(function, args, ST);
     }
   }
 }
@@ -90,7 +101,7 @@ SExpression *substitute_mention(SExpression *source, char *key, SExpression *val
 }
   
 
-SExpression *apply(Lambda *lambda, SExpression *arglist, SymbolTable *ST) {
+SExpression *apply(SExpression *function, SExpression *args, SymbolTable *ST) {
   /*
    *  if lambda arity is 0 and there's no arguments:
    *      eval lambda body
@@ -101,20 +112,20 @@ SExpression *apply(Lambda *lambda, SExpression *arglist, SymbolTable *ST) {
    *      take lambda body and substitute all mentions with args-SExpressions
    *      eval resulted expression
    */
-  //printf("Handling Apply.\n");
-  //printf("Args: "); print_expr(lambda->args);
-  //printf("Params: "); print_expr(arglist);
-  //printf("Body: "); print_expr(lambda->body);
+  printf("Handling Apply.\n");
+  printf("Args: "); print_expression(function->lambda->args);
+  printf("Params: "); print_expression(args);
+  printf("Body: "); print_expression(function->lambda->body);
   SExpression *result = NULL;
-  if ((lambda->arity == 0) && 
-      (list_len(arglist) == 0))
-     return eval(lambda->body, ST);
-  else if ((list_len(arglist) == 1) &&
-	   (lambda->arity == 1)) {
-    SExpression *subs = substitute_mention(duplicate_term(lambda->body),
-					   lambda->args->exprval->mentval,
-					   eval(arglist->exprval, ST));
-    //printf("After substitution: "); print_expr(subs);
+  if ((function->lambda->arity == 0) && 
+      (list_length(args) == 0))
+     return eval(function->lambda->body, ST);
+  else if ((list_length(args) == 1) &&
+	   (function->lambda->arity == 1)) {
+    SExpression *subs = substitute_mention(duplicate_expression(function->lambda->body),
+					   function->lambda->args->pair->value->mention,
+					   eval(args->pair->value, ST));
+    printf("After substitution: "); print_expression(subs);
     return eval(subs, ST);
   }
   return result;
@@ -122,44 +133,39 @@ SExpression *apply(Lambda *lambda, SExpression *arglist, SymbolTable *ST) {
 
 
 SExpression *handle_define(SExpression *ex, SymbolTable *ST) {
-  Lambda *lambda = alloc_lambda();
-  SExpression *name = duplicate_term(ex),
-    *args = duplicate_term(ex->next),
-    *body = duplicate_term(ex->next->next);
-  //printf("Handling define:\n");
-  //printf("Name is %s.\n", name->mentval);
-  //printf("Args:"); print_expr(args);
-  //printf("Body:"); print_expr(body);
-  lambda->args = args;
-  lambda->body = body;
-  lambda->arity = list_len(args);
-  //printf("Arity = %d.\n", lambda->arity);
-  ht_insert(ST, name->mentval, lambda);
+  char *name = strdup(ex->pair->value->mention);
+  SExpression *lambda = duplicate_expression(ex->pair->next->pair->value);
+  printf("Handling define:\n");
+  printf("Name is %s.\n", name);
+  printf("Args:"); print_expression(lambda->lambda->args);
+  printf("Body:"); print_expression(lambda->lambda->body);
+  printf("Arity = %d.\n", lambda->lambda->arity);
+  ht_insert(ST, name, lambda);
   return alloc_term(tt_nil);
 }
 
 
 SExpression *handle_if(SExpression *ex, SymbolTable *ST) {
-  SExpression *predic = (ex) ? duplicate_term(ex) : NULL,
-    *ifbranch = (ex->next) ? duplicate_term(ex->next) : NULL,
-    *elsebranch = (ex->next->next) ? duplicate_term(ex->next->next) : NULL;
-  //  printf("Handling if.\n");
-  //printf("Predicate:\t"); print_expr(predic);
-  //printf("If-branch:\t"); print_expr(ifbranch);
-  //printf("Else-branch:\t"); print_expr(elsebranch);
+  SExpression *predic = (ex->pair->value) ? duplicate_expression(ex->pair->value) : NULL,
+    *ifbranch = (ex->pair->next->pair->value) ? duplicate_expression(ex->pair->next->pair->value) : NULL,
+    *elsebranch = (ex->pair->next->pair->next) ? duplicate_expression(ex->pair->next->pair->next->pair->value) : NULL;
+  printf("Handling if.\n");
+  printf("Predicate:\t"); print_expression(predic);
+  printf("If-branch:\t"); print_expression(ifbranch);
+  printf("Else-branch:\t"); print_expression(elsebranch);
   if (!predic ||
       !ifbranch ||
       !elsebranch)
     return NULL;
-  //printf("Evaluating predicate.\n");
+  printf("Evaluating predicate.\n");
   predic = eval(predic, ST);
   if ((predic->type == tt_nil) ||
       ((predic->type == tt_bool) &&
-       (predic->boolval == false))) {
-    //printf("Evaluating else-branch.\n");
+       (predic->boolean == false))) {
+    printf("Evaluating else-branch.\n");
     return eval(elsebranch, ST);
   } else {
-    //printf("Evaluating if-branch.\n");
+    printf("Evaluating if-branch.\n");
     return eval(ifbranch, ST);
   }
 }
