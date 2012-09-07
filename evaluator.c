@@ -70,32 +70,41 @@ SExpression *eval(SExpression *expr, SymbolTable *ST) {
 SExpression *substitute_mention(SExpression *source, char *key, SExpression *value) {
   if (!source)
     return NULL;
-  SExpression *current = source;
-  while (current) {
-    if ((current->type == tt_mention) &&
-	(strcmp(current->mentval, key) == 0)) {
-      switch (value->type) {
-      case tt_int:
-	current->type = tt_int;
-	current->intval = value->intval;
-	break;
-      case tt_bool:
-	current->type = tt_bool;
-	current->boolval = value->boolval;
-	break;
-      case tt_nil:
-	current->type = tt_nil;
-	break;
-      case tt_list:
-	current->type = tt_list;
-	current->exprval = duplicate_term(value); 
-	break;
-      default:
-	break; 
-      }
-    } else if (current->type == tt_list)
-      substitute_mention(current->exprval, key, value);
-    current = current->next;
+  if (source->type == tt_mention &&
+      strcmp(source->mention, key) == 0) {
+    switch (value->type) {
+    case tt_int:
+      source->type = tt_int;
+      source->integer = value->integer;
+      break;
+    case tt_bool:
+      source->type = tt_bool;
+      source->boolean = value->boolean;
+      break;
+    case tt_nil:
+      source->type = tt_nil;
+      break;
+    case tt_pair:
+      source->type = tt_pair;
+      source->pair->value = duplicate_expression(value->pair->value);
+      source->pair->next = duplicate_expression(value->pair->next);
+      break;
+    case tt_lambda:
+      source->type = tt_lambda;
+      source->lambda->arity = value->lambda->arity;
+      source->lambda->args = duplicate_expression(value->lambda->args);
+      source->lambda->body = duplicate_expression(value->lambda->body);
+      break;
+    default:
+      break;
+    }
+  }
+  else if (source->type == tt_pair) {
+    SExpression *current = source;
+    while (current) {
+      substitute_mention(current->pair->value, key, value);
+      current = current->pair->next;
+    }
   }
   return source;
 }
