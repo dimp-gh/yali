@@ -19,18 +19,20 @@ void printtest() {
   third->pair->value->integer = 55;
   printf("What is should be: (define fifty-five 55).\n");
   printf("And what is it: ");
-  print_expression(root);
+  print_typed_expression(root);
+  dealloc_expression(root);
 }
 
 void parsetest() {
-  char str[] = "(define sqr (lambda (x) (* x x)))";
+  char str[] = "(define #t #f #nil 1 2 3 fact)";
   printf("Input: %s.\n", str);
   Token_node *head = lex(str);
   printf("Tokens: ");
   _print_tokens(head);
   SExpression *root = parse(head);
   printf("After parse: ");
-  print_expression(root);
+  print_typed_expression(root);
+  dealloc_expression(root);
 }
 
 int main() {

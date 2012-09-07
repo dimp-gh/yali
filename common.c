@@ -23,7 +23,7 @@ void _print_expression(SExpression *expr, int withtypes) {
       printf("%s%s", TYPE("mention:"), expr->mention);
       break;
     case tt_lambda:
-      printf("%s(lambda(%d) ", TYPE("lambda:"), expr->lambda->arity);
+      printf("%s(lambda ", TYPE("lambda:"));
       _print_expression(expr->lambda->args, withtypes);
       printf(" ");
       _print_expression(expr->lambda->body, withtypes);

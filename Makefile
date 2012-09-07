@@ -10,8 +10,8 @@ hash:		hashtable.o testtable.o
 list:		linklist.o testlist.o
 		$(CC) $(CFLAGS) -o list linklist.o testlist.o
 
-lambda:		common.o lambdatest.o parser.o hashtable.o
-		$(CC) $(CFLAGS) -o lambda common.o lambdatest.o parser.o hashtable.o
+lambda:		common.o lambdatest.o lexer.o bnparser.o hashtable.o evaluator.o
+		$(CC) $(CFLAGS) -o lambda common.o lambdatest.o lexer.o bnparser.o hashtable.o evaluator.o
 
 lex:		lexer.o lextest.o
 		$(CC) $(CFLAGS) -o lex lexer.o lextest.o 
@@ -52,5 +52,8 @@ bnparser.o:	bnparser.c bnparser.h
 bnparsertest.o:	bnparsertest.c
 		$(CC) $(CFLAGS) -o bnparsertest.o -c bnparsertest.c
 
+evaluator.o:	evaluator.c evaluator.h
+		$(CC) $(CFLAGS) -o evaluator.o -c evaluator.c
+
 clean:
-		rm -f hash list lex lambda *.o *~
+		rm -f hash list lex parse lambda *.o *~
