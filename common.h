@@ -1,13 +1,13 @@
-#include "sexpr.h"
 #ifndef COMMON_H
 #define COMMON_H
+#include "sexpr.h"
+
 
 void print_expression(SExpression *expr);
 void print_typed_expression(SExpression *expr);
 SExpression *alloc_term(enum Term_type type);
-void dealloc_expr(SExpression *term); 
-/*
-SExpression *duplicate_term(SExpression *term);
-SExpression *duplicate_list(SExpression *head);
-int list_len(SExpression *list);*/
+void dealloc_expression(SExpression *term); 
+
+SExpression *duplicate_expression(SExpression *head);
+int list_length(SExpression *list);
 #endif

@@ -1,9 +1,8 @@
-#include "common.h"
 #include <stdio.h>
 #include <malloc.h>
 #include <string.h>
 #include <stdlib.h>
-
+#include "common.h"
 
 #define TYPE(MARKER) (withtypes) ? MARKER : ""
 
@@ -24,7 +23,7 @@ void _print_expression(SExpression *expr, int withtypes) {
       printf("%s%s", TYPE("mention:"), expr->mention);
       break;
     case tt_lambda:
-      printf("%s(lambda ", TYPE("lambda:"));
+      printf("%s(lambda(%d) ", TYPE("lambda:"), expr->lambda->arity);
       _print_expression(expr->lambda->args, withtypes);
       printf(" ");
       _print_expression(expr->lambda->body, withtypes);
@@ -61,6 +60,20 @@ void print_typed_expression(SExpression *root) {
   printf(".\n");
 }
 
+Lambda *alloc_lambda() {
+  Lambda *lamb = malloc(sizeof(Lambda));
+  lamb->arity = 0;
+  lamb->args = NULL;
+  lamb->body = NULL;
+  return lamb;
+}
+
+List *alloc_pair() {
+  List *pair = malloc(sizeof(List));
+  pair->value = NULL;
+  pair->next = NULL;
+   return pair;
+}
 
 SExpression *alloc_term(enum Term_type type) {
   SExpression *res = malloc(sizeof(SExpression));
@@ -89,31 +102,15 @@ SExpression *alloc_term(enum Term_type type) {
   return res;
 }
 
-Lambda *alloc_lambda() {
-  Lambda *lamb = malloc(sizeof(Lambda));
-  lamb->arity = 0;
-  lamb->args = NULL;
-  lamb->body = NULL;
-  return lamb;
-}
-
-List *alloc_pair() {
-  List *pair = malloc(sizeof(List));
-  pair->value = NULL;
-  pair->next = NULL;
-   return pair;
-}
-
-
 void dealloc_lambda(Lambda *lambda) {
   if (!lambda)
     return;
-  dealloc_expr(lambda->args);
-  dealloc_expr(lambda->body);
+  dealloc_expression(lambda->args);
+  dealloc_expression(lambda->body);
   free(lambda);
 }
 
-void dealloc_expr(SExpression *expr) {
+void dealloc_expression(SExpression *expr) {
   if (!expr)
     return;
   switch (expr->type) {
@@ -126,46 +123,57 @@ void dealloc_expr(SExpression *expr) {
     free(expr->mention);
     free(expr);
     break;
-  case tt_lambda:
-    dealloc_lambda(expr->lambda);
-    free(expr);
-    break;
-  case tt_pair:
-    SExpression *current = expr, *tmp;
+  case tt_pair: {   
+    SExpression *current = expr;
+    SExpression *tmp;
     while (current) {
-      dealloc_expr(current->pair->value);
+      dealloc_expression(current->pair->value);
       tmp = current->pair->next;
       free(current);
       current = tmp;
     }
     break;
-  default:
+  }
+  case tt_lambda:
+    dealloc_lambda(expr->lambda);
+    free(expr);
+    break;
+  default: 
     break;
   }
 }
 
-SExpression *duplicate_term(SExpression *ex) {
+
+SExpression *duplicate_expression(SExpression *ex) {
   if (!ex)
     return NULL;
   SExpression *result = NULL;
   switch (ex->type) {
   case tt_int:
     result = alloc_term(tt_int);
-    result->intval = ex->intval;
+    result->integer = ex->integer;
     break;
   case tt_mention:
     result = alloc_term(tt_mention);
-    result->mentval = strdup(ex->mentval);
+    result->mention = strdup(ex->mention);
     break;
   case tt_bool:
     result = alloc_term(tt_bool);
-    result->boolval = ex->boolval;
+    result->boolean = ex->boolean;
     break;
   case tt_nil:
     result = alloc_term(tt_nil);
     break;
-  case tt_list:
-    result = duplicate_list(ex);
+  case tt_pair:
+    result = alloc_term(tt_pair);
+    result->pair->value = duplicate_expression(ex->pair->value);
+    result->pair->next = duplicate_expression(ex->pair->next);
+    break;
+  case tt_lambda:
+    result = alloc_term(tt_lambda);
+    result->lambda->arity = ex->lambda->arity;
+    result->lambda->args = duplicate_expression(ex->lambda->args);
+    result->lambda->body = duplicate_expression(ex->lambda->body);
     break;
   default:
     break; 
@@ -173,55 +181,21 @@ SExpression *duplicate_term(SExpression *ex) {
   return result;
 }
 
-SExpression *duplicate_list(SExpression *list) {
-  SExpression *root = alloc_term(tt_list), *head = list->exprval;
-  if (head) {
-    root->exprval = duplicate_term(head);
-    SExpression *last = root->exprval, *current = head->next;
-    while (current) {
-      last->next = duplicate_term(current);
-      last = last->next;
-      current = current->next;
-    }
-  }
-  return root;
-}
 
-
-int list_len(SExpression *list) {
+int list_length(SExpression *list) {
   if ((!list) ||
-      (list->type != tt_list))
+      (list->type != tt_pair))
     return -1;
   else {
-    SExpression *current = list->exprval;
+    SExpression *current = list;
     int len = 0;
     while (current) {
-      current = current->next;
+      if (current->type == tt_pair)
+	current = current->pair->next;
+      else
+	break;
       len++;
     }
     return len;
   }
 }
-      
-
-Lambda *create_lambda(SExpression *root) {
-  SExpression *head, *args, *body;
-  if ((!root) ||
-      (root->type != tt_list) ||
-      (!(head = root->exprval)) ||
-      (head->type != tt_mention) ||
-      (strcmp(head->mentval, "lambda") != 0) ||
-      (!(args = head->next)) ||
-      (args->type != tt_list) ||
-      (!(body = args->next)) ||
-      (body-> type != tt_list))
-    return NULL;
-  else {
-    Lambda *lambda = alloc_lambda();
-    lambda->args = duplicate_term(args);
-    lambda->body = duplicate_term(body);
-    lambda->arity = list_len(args);
-    return lambda;
-  }
-}     
-*/
