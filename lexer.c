@@ -14,7 +14,7 @@ int is_nil(char *c) {
 
 int is_int(char *c) {
   char *current = c;
-  while (current) {
+  while (*current != '\0') {
     if (!isdigit(*current))
       return 0;
     current++;
