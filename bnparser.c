@@ -72,49 +72,6 @@ Token_node *_parse_expression(Token_node *token_head, SExpression *root) {
 }
 
 
-void _print_expression(SExpression *expr) {
-  const char *boolrepr[] = {"#f", "#t"};
-  if (expr) {
-    switch (expr->type) {
-    case tt_int:
-      printf("%ld", expr->integer);
-      break;
-    case tt_nil:
-      printf("#nil");
-      break;
-    case tt_bool:
-      printf("%s", boolrepr[expr->boolean]);
-      break;
-    case tt_mention:
-      printf("%s", expr->mention);
-      break;
-    case tt_lambda:
-      printf("(lambda ");
-      _print_expression(expr->lambda->args);
-      printf(" ");
-      _print_expression(expr->lambda->body);
-      printf(")");
-      break;
-    case tt_pair:
-      printf("(");
-      SExpression *temp = expr;
-      while (temp) {
-	_print_expression(temp->pair->value);
-	if (temp->pair->next) {
-	  printf(" ");
-	  temp = temp->pair->next;
-	} else
-	  break;
-      }
-      printf(")");
-      break;
-    default:
-      printf("Unknown(type=%d)", expr->type);
-      break;
-    }
-  }
-}
-
 SExpression *parse(Token_node *head) {
   Token_node *current = head;
   SExpression *result = NULL;
@@ -127,10 +84,4 @@ SExpression *parse(Token_node *head) {
     current = current->next;
   }    
   return result;
-}
-
-
-void print_expression(SExpression *expr) {
-  _print_expression(expr);
-  printf(".\n");
 }

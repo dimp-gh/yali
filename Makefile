@@ -10,14 +10,14 @@ hash:		hashtable.o testtable.o
 list:		linklist.o testlist.o
 		$(CC) $(CFLAGS) -o list linklist.o testlist.o
 
-lambda:		common.o lambdatest.o sexpr.o parser.o hashtable.o
-		$(CC) $(CFLAGS) -o lambda common.o sexpr.o lambdatest.o parser.o hashtable.o
+lambda:		common.o lambdatest.o parser.o hashtable.o
+		$(CC) $(CFLAGS) -o lambda common.o lambdatest.o parser.o hashtable.o
 
 lex:		lexer.o lextest.o
 		$(CC) $(CFLAGS) -o lex lexer.o lextest.o 
 
-parse:		bnparsertest.o bnparser.o lexer.o sexpr.o common.o
-		$(CC) $(CFLAGS) -o parse bnparsertest.o bnparser.o lexer.o sexpr.o common.o 
+parse:		bnparsertest.o bnparser.o lexer.o common.o
+		$(CC) $(CFLAGS) -o parse bnparsertest.o bnparser.o lexer.o common.o 
 
 linklist.o:	linklist.c linklist.h
 		$(CC) $(CFLAGS) -o linklist.o -c linklist.c
@@ -33,9 +33,6 @@ testtable.o:	testtable.c
 
 lambdatest.o:	lambdatest.c
 		$(CC) $(CFLAGS) -o lambdatest.o -c lambdatest.c
-
-sexpr.o:	sexpr.h sexpr.c
-		$(CC) $(CFLAGS) -o sexpr.o -c sexpr.c
 
 common.o:	common.c common.h
 		$(CC) $(CFLAGS) -o common.o -c common.c

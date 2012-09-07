@@ -5,7 +5,6 @@
 
 
 SExpression *parse(Token_node *head);
-void print_expression(SExpression *expr);
 
 
 #endif

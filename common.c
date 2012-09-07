@@ -6,61 +6,59 @@
 //#include <ctype.h>
 
 
-//#define DEBUG(X) printf("debug: %s.\n", X)
-#define DEBUG(X)  
+#define TYPE(MARKER) (withtypes) ? MARKER : ""
 
-
-void _print_expr(SExpression *expr, int with_types) {
-  const char boolrepr[2][3] = {"#f", "#t"};
-  DEBUG("Entering _print_sexp()");
+void _print_expression(SExpression *expr, int withtypes) {
+  const char *boolrepr[] = {"#f", "#t"};
   if (expr) {
-    DEBUG("Expr is not null, looking for it's type");
     switch (expr->type) {
     case tt_int:
-      DEBUG("It's integer, printing");
-      printf("%s%ld", (with_types) ? "int::" : "", expr->intval);
+      printf("%s%ld", TYPE("int:"), expr->integer);
       break;
     case tt_nil:
-      DEBUG("It's nil, printing");
-      printf("%s#nil", (with_types) ? "nil::" : "");
-      break;
-    case tt_list:
-      DEBUG("It's list. Printing open paren. Then printing list. Then closing paren");
-      printf("%s(", (with_types) ? "list::" : "");
-      _print_expr(expr->exprval, with_types);
-      printf(")");
+      printf("%s#nil", TYPE("nil:"));
       break;
     case tt_bool:
-      DEBUG("It's bool. Printing");
-      printf("%s%s", (with_types) ? "bool::" : "", boolrepr[expr->boolval]);
+      printf("%s%s", TYPE("bool:"), boolrepr[expr->boolean]);
       break;
     case tt_mention:
-      printf("%s%s", (with_types) ? "ment::" : "", expr->mentval);
+      printf("%s%s", TYPE("mention:"), expr->mention);
+      break;
+    case tt_lambda:
+      printf("%s(lambda ", TYPE("lambda:"));
+      _print_expression(expr->lambda->args, withtypes);
+      printf(" ");
+      _print_expression(expr->lambda->body, withtypes);
+      printf(")");
+      break;
+    case tt_pair:
+      printf("%s(", TYPE("list:"));
+      SExpression *temp = expr;
+      while (temp) {
+	_print_expression(temp->pair->value, withtypes);
+	if (temp->pair->next) {
+	  printf(" ");
+	  temp = temp->pair->next;
+	} else
+	  break;
+      }
+      printf(")");
       break;
     default:
-      DEBUG("It has unknown type. Printing");
-      printf("Unknown(%d)", expr->type);
+      printf("Unknown(type=%d)", expr->type);
       break;
     }
-    DEBUG("Ended printing current term");
-    if (expr->next) {
-      DEBUG("We've got the next term - start printing it");
-      printf(" ");
-      _print_expr(expr->next, with_types);
-    }
   }
-  DEBUG("Leaving _print_sexp()");
 }
 
 
-void print_expr(SExpression *s) {
-  _print_expr(s, 0);
+void print_expression(SExpression *expr) {
+  _print_expression(expr, 0);
   printf(".\n");
 }
 
-
-void print_typed_expr(SExpression *s) {
-  _print_expr(s, 1);
+void print_typed_expression(SExpression *root) {
+  _print_expression(root, 1);
   printf(".\n");
 }
 
@@ -68,7 +66,27 @@ void print_typed_expr(SExpression *s) {
 SExpression *alloc_term(enum Term_type type) {
   SExpression *res = malloc(sizeof(SExpression));
   res->type = type;
-  res->next = NULL;
+  switch (type) {
+  case tt_nil:
+    break;
+  case tt_int:
+    res->integer = 0;
+    break;
+  case tt_bool:
+    res->boolean = false;
+    break;
+  case tt_lambda:
+    res->lambda = alloc_lambda();
+    break;
+  case tt_pair:
+    res->pair = alloc_pair();
+    break;
+  case tt_mention:
+    res->mention = NULL;
+    break;
+  default:
+    break;
+  }     
   return res;
 }
 
@@ -80,6 +98,13 @@ Lambda *alloc_lambda() {
   return lamb;
 }
 
+List *alloc_pair() {
+  List *pair = malloc(sizeof(List));
+  pair->value = NULL;
+  pair->next = NULL;
+   return pair;
+}
+/*
 void dealloc_expr(SExpression *expr) {
   if (!expr)
     return;
@@ -189,3 +214,4 @@ Lambda *create_lambda(SExpression *root) {
     return lambda;
   }
 }     
+*/
