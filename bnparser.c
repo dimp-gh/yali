@@ -53,6 +53,7 @@ Token_node *_parse_expression(Token_node *token_head, SExpression *root) {
 	SExpression *l = alloc_term(tt_lambda);
 	l->lambda->args = new->pair->next->pair->value;
 	l->lambda->body = new->pair->next->pair->next->pair->value;
+	l->lambda->arity = list_length(l->lambda->args);
 	UPDATE_ROOT_LAST(root, last, l);
       } else
 	UPDATE_ROOT_LAST(root, last, new);
