@@ -5,7 +5,7 @@ Usage:
 `./lambda`  
 
 And you're in REPL. Now you can define your own factorial function. Just like this:  
-`>>> (define fact (x) (if (eq x 0) 1 (* x (fact (dec x)))))`  
+`>>> (define fact (lambda (x) (if (eq x 0) 1 (* x (fact (dec x))))))`  
 Done. Now you can calculate factorials:  
 `>>> (fact 15)`  
 `Eval = 1307674368000`
