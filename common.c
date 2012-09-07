@@ -3,7 +3,6 @@
 #include <malloc.h>
 #include <string.h>
 #include <stdlib.h>
-//#include <ctype.h>
 
 
 #define TYPE(MARKER) (withtypes) ? MARKER : ""
@@ -52,8 +51,8 @@ void _print_expression(SExpression *expr, int withtypes) {
 }
 
 
-void print_expression(SExpression *expr) {
-  _print_expression(expr, 0);
+void print_expression(SExpression *root) {
+  _print_expression(root, 0);
   printf(".\n");
 }
 
@@ -104,27 +103,7 @@ List *alloc_pair() {
   pair->next = NULL;
    return pair;
 }
-/*
-void dealloc_expr(SExpression *expr) {
-  if (!expr)
-    return;
-  SExpression *current = expr, *next;
-  do {
-    next = current->next;
-    switch (current->type) {
-    case tt_list:
-      dealloc_expr(current->exprval);
-      break;
-    case tt_mention:
-      free(current->mentval);
-      break;
-    default:
-      break;
-    }
-    free(current);
-    current = next;
-  } while (current);
-}
+
 
 void dealloc_lambda(Lambda *lambda) {
   if (!lambda)
@@ -132,6 +111,37 @@ void dealloc_lambda(Lambda *lambda) {
   dealloc_expr(lambda->args);
   dealloc_expr(lambda->body);
   free(lambda);
+}
+
+void dealloc_expr(SExpression *expr) {
+  if (!expr)
+    return;
+  switch (expr->type) {
+  case tt_nil:
+  case tt_int:
+  case tt_bool:
+    free(expr);
+    break;
+  case tt_mention:
+    free(expr->mention);
+    free(expr);
+    break;
+  case tt_lambda:
+    dealloc_lambda(expr->lambda);
+    free(expr);
+    break;
+  case tt_pair:
+    SExpression *current = expr, *tmp;
+    while (current) {
+      dealloc_expr(current->pair->value);
+      tmp = current->pair->next;
+      free(current);
+      current = tmp;
+    }
+    break;
+  default:
+    break;
+  }
 }
 
 SExpression *duplicate_term(SExpression *ex) {
