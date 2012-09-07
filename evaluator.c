@@ -1,6 +1,6 @@
 #include "evaluator.h"
 #include "common.h"
-#include "stddef.h"
+#include <stddef.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -50,12 +50,12 @@ SExpression *eval(SExpression *expr, SymbolTable *ST) {
       return handle_define(tail, ST);
     else if (strcmp(call, "if") == 0)
       return handle_if(tail, ST);
-    /*    else if (strcmp(call, "eq") == 0)
+    else if (strcmp(call, "eq") == 0)
       return handle_eq(tail, ST);
     else if (strcmp(call, "dec") == 0)
       return handle_dec(tail, ST);
     else if (strcmp(call, "*") == 0)
-    return handle_mul(tail, ST);*/
+    return handle_mul(tail, ST);
     // special forms check end
     else {
       SExpression *function = ht_lookup(ST, call);
@@ -181,27 +181,27 @@ SExpression *handle_if(SExpression *ex, SymbolTable *ST) {
 
 
 SExpression *handle_eq(SExpression *ex, SymbolTable *ST) {
-  SExpression *left = ex, *right = ex->next;
+  SExpression *left = ex->pair->value, *right = ex->pair->next->pair->value;
   left = eval(left, ST);
   right = eval(right, ST);
   SExpression *answer = alloc_term(tt_bool);
   if (left->type != right->type)
-    answer->boolval = false;
+    answer->boolean = false;
   else {
     switch (left->type) {
     case tt_bool:
-      answer->boolval = (left->boolval == right->boolval) ? true : false;
+      answer->boolean = (left->boolean == right->boolean) ? true : false;
       break;
     case tt_nil:
-      answer->boolval = true;
+      answer->boolean = true;
       break;
     case tt_int:
-      answer->boolval = (left->intval == right->intval) ? true : false;
+      answer->boolean = (left->integer == right->integer) ? true : false;
       break;
     case tt_mention:
-      answer->boolval = (strcmp(left->mentval, right->mentval) == 0) ? true : false;
+      answer->boolean = (strcmp(left->mention, right->mention) == 0) ? true : false;
       break;
-    case tt_list: // oh god, not this shit again
+    case tt_pair: // oh god, not this shit again
       answer = false;
     default:
       break;
@@ -214,18 +214,18 @@ SExpression *handle_dec(SExpression *ex, SymbolTable *ST) {
   if (!ex)
     return NULL;
   else if (ex->type != tt_int)
-    ex = eval(ex, ST);
+    ex = eval(ex->pair->value, ST);
   if (ex->type != tt_int)
     return NULL;
   SExpression *result = alloc_term(tt_int);
-  result->intval = ex->intval - 1;
+  result->integer = ex->integer - 1;
   return result;
 }
     
 SExpression *handle_mul(SExpression *ex, SymbolTable *ST) {
   if (!ex)
     return NULL;
-  SExpression *left = ex, *right = ex->next;
+  SExpression *left = ex->pair->value, *right = ex->pair->next->pair->value;
   if (!right)
     return NULL;
   left = eval(left, ST);
@@ -235,7 +235,8 @@ SExpression *handle_mul(SExpression *ex, SymbolTable *ST) {
     return NULL;
   else {
     SExpression *result = alloc_term(tt_int);
-    result->intval = left->intval * right->intval;
+    result->integer = left->integer * right->integer;
     return result;
   }
 }
+

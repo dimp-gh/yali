@@ -8,7 +8,7 @@
 typedef HashTable SymbolTable;
 
 SExpression *eval(SExpression *expr, SymbolTable *ST);
-SExpression *apply(Lambda *lambda, SExpression *args, SymbolTable *ST);
+SExpression *apply(SExpression *function, SExpression *args, SymbolTable *ST);
 SExpression *handle_define(SExpression *ex, SymbolTable *ST);
 SExpression *handle_if(SExpression *ex, SymbolTable *ST);
 SExpression *handle_eq(SExpression *ex, SymbolTable *ST);
