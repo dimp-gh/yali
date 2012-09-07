@@ -1,6 +1,5 @@
 #ifndef SEXPR
 #define SEXPR
-#include "hashtable.h"
 
 typedef enum { false, true } bool;
 
@@ -13,41 +12,31 @@ enum Term_type {
   tt_mention
 };
 
-struct List {};
-struct Lambda {}; 
+struct List;
+struct Lambda; 
 
 typedef struct sexp {
   enum Term_type type;
   union {
-    List *pair;
+    struct List *pair;
     long int integer;
     void *nil;
     bool boolean;
-    Lambda *lambda;
+    struct Lambda *lambda;
     char *mention;
   };
 } SExpression;
 
 
-typedef struct {
+typedef struct Lambda {
   unsigned arity;
   SExpression *args;
   SExpression *body;
 } Lambda;
 
-typedef struct {
-  struct sexp *value;
-  struct sexp *next;
+typedef struct List {
+  SExpression *value;
+  SExpression *next;
 } List;
-
-typedef HashTable SymbolTable;
-
-SExpression *eval(SExpression *expr, SymbolTable *ST);
-SExpression *apply(Lambda *lambda, SExpression *args, SymbolTable *ST);
-SExpression *handle_define(SExpression *ex, SymbolTable *ST);
-SExpression *handle_if(SExpression *ex, SymbolTable *ST);
-SExpression *handle_eq(SExpression *ex, SymbolTable *ST);
-SExpression *handle_mul(SExpression *ex, SymbolTable *ST);
-SExpression *handle_dec(SExpression *ex, SymbolTable *ST);
 
 #endif

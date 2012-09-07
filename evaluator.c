@@ -1,11 +1,4 @@
-#include <malloc.h>
-#include <string.h>
-#include "sexpr.h"
-#include "common.h"
-
-
-//#define DEBUG(X) printf("debug: %s.\n", X)
-#define DEBUG(X)  
+#include "evaluator.h"
 
 
 SExpression *eval(SExpression *expr, SymbolTable *ST) {
