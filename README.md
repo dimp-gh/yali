@@ -2,15 +2,15 @@ Yali (Yep, Another Lisp Interpreter) is _extremely_ small Lisp interpreter. Desi
 
 Usage:  
 `make`  
-`./lambda`  
+`./repl`  
 
 And you're in REPL. Now you can define your own factorial function. Just like this:  
-`>>> (define fact (lambda (x) (if (= x 0) 1 (* x (fact (dec x))))))`  
+`>>> (define (fact x) (if (= x 0) 1 (* x (fact (- x 1)))))`  
 Done. Now you can calculate factorials:  
 `>>> (fact 15)`  
 `Eval = 1307674368000`  
 Another example:  
-`>>> (define fibo (lambda (x) (if (= x 1) 1 (if (= x 2) 1 (+ (fibo (- x 1)) (fibo (- x 2)))))))`
+`>>> (define (fibo x) (if (= x 1) 1 (if (= x 2) 1 (+ (fibo (- x 1)) (fibo (- x 2))))))`
 
 TODO:
 * Split current shitty parser to good lexer and recursive parser. ✔
@@ -22,6 +22,7 @@ TODO:
  - Type conversions.
  - Basic arithmetic, logic and comparison operations.
  - I/O functions.
+ - Time measurement functions.
 * Create own data types, instead of using C types.
 * Liquidate memory leaks in evaluator's core.
 * Add scopes, preferably lexical.

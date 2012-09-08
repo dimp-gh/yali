@@ -19,7 +19,7 @@ void repl() {
     gets(buffer);
     tokens = lex(buffer);
     test = parse(tokens);
-    printf("Expression: "); print_typed_expression(test);
+    printf("Expression: "); print_expression(test);
     result = eval(test, ST);
     if (result) {
       printf("Eval = "); print_expression(result);

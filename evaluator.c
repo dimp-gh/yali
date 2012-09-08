@@ -28,7 +28,7 @@ SExpression *eval(SExpression *expr, SymbolTable *ST) {
    */
   if (!expr)
     return NULL;
-  printf("Evaluating "); print_typed_expression(expr);
+  //printf("Evaluating: "); print_expression(expr);
   if (expr->type == tt_mention)
     return ht_lookup(ST, expr->mention);
   else if (expr->type == tt_int ||
@@ -52,8 +52,6 @@ SExpression *eval(SExpression *expr, SymbolTable *ST) {
       return handle_if(tail, ST);
     else if (strcmp(call, "=") == 0)
       return handle_eq(tail, ST);
-    else if (strcmp(call, "--") == 0)
-      return handle_dec(tail, ST);
     else if (strcmp(call, "*") == 0)
       return handle_mul(tail, ST);
     else if (strcmp(call, "+") == 0)
@@ -125,10 +123,10 @@ SExpression *apply(SExpression *function, SExpression *args, SymbolTable *ST) {
    *      take lambda body and substitute all mentions with args-SExpressions
    *      eval resulted expression
    */
-  printf("Handling Apply.\n");
-  printf("Args: "); print_expression(function->lambda->args);
-  printf("Params: "); print_expression(args);
-  printf("Body: "); print_expression(function->lambda->body);
+  //printf("Handling Apply.\n");
+  //printf("Args: "); print_expression(function->lambda->args);
+  //printf("Params: "); print_expression(args);
+  //printf("Body: "); print_expression(function->lambda->body);
   SExpression *result = NULL;
   if ((function->lambda->arity == 0) && 
       (list_length(args) == 0))
@@ -138,7 +136,7 @@ SExpression *apply(SExpression *function, SExpression *args, SymbolTable *ST) {
     SExpression *subs = substitute_mention(duplicate_expression(function->lambda->body),
 					   function->lambda->args->pair->value->mention,
 					   eval(args->pair->value, ST));
-    printf("After substitution: "); print_expression(subs);
+    //printf("After substitution: "); print_expression(subs);
     return eval(subs, ST);
   }
   return result;
@@ -177,23 +175,23 @@ SExpression *handle_if(SExpression *ex, SymbolTable *ST) {
   SExpression *predic = (ex->pair->value) ? duplicate_expression(ex->pair->value) : NULL,
     *ifbranch = (ex->pair->next->pair->value) ? duplicate_expression(ex->pair->next->pair->value) : NULL,
     *elsebranch = (ex->pair->next->pair->next) ? duplicate_expression(ex->pair->next->pair->next->pair->value) : NULL;
-  printf("Handling if.\n");
-  printf("Predicate:\t"); print_expression(predic);
-  printf("If-branch:\t"); print_expression(ifbranch);
-  printf("Else-branch:\t"); print_expression(elsebranch);
+  //printf("Handling if.\n");
+  //printf("Predicate:\t"); print_expression(predic);
+  //printf("If-branch:\t"); print_expression(ifbranch);
+  //printf("Else-branch:\t"); print_expression(elsebranch);
   if (!predic ||
       !ifbranch ||
       !elsebranch)
     return NULL;
-  printf("Evaluating predicate.\n");
+  //printf("Evaluating predicate.\n");
   predic = eval(predic, ST);
   if ((predic->type == tt_nil) ||
       ((predic->type == tt_bool) &&
        (predic->boolean == false))) {
-    printf("Evaluating else-branch.\n");
+    //printf("Evaluating else-branch.\n");
     return eval(elsebranch, ST);
   } else {
-    printf("Evaluating if-branch.\n");
+    //printf("Evaluating if-branch.\n");
     return eval(ifbranch, ST);
   }
 }
@@ -221,6 +219,8 @@ SExpression *handle_eq(SExpression *ex, SymbolTable *ST) {
       answer->boolean = (strcmp(left->mention, right->mention) == 0) ? true : false;
       break;
     case tt_pair: // oh god, not this shit again
+      answer = false;
+    case tt_lambda:
       answer = false;
     default:
       break;
