@@ -13,7 +13,6 @@ SExpression *handle_define(SExpression *ex, SymbolTable *ST);
 SExpression *handle_if(SExpression *ex, SymbolTable *ST);
 SExpression *handle_eq(SExpression *ex, SymbolTable *ST);
 SExpression *handle_mul(SExpression *ex, SymbolTable *ST);
-SExpression *handle_dec(SExpression *ex, SymbolTable *ST);
 SExpression *handle_plus(SExpression *ex, SymbolTable *ST);
 SExpression *handle_minus(SExpression *ex, SymbolTable *ST);
 

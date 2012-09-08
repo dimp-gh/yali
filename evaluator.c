@@ -229,72 +229,64 @@ SExpression *handle_eq(SExpression *ex, SymbolTable *ST) {
   return answer;
 }
 
-SExpression *handle_dec(SExpression *ex, SymbolTable *ST) {
-  if (!ex)
-    return NULL;
-  else if (ex->type != tt_int)
-    ex = eval(ex->pair->value, ST);
-  if (ex->type != tt_int)
-    return NULL;
-  SExpression *result = alloc_term(tt_int);
-  result->integer = ex->integer - 1;
-  return result;
-}
-    
+  
 SExpression *handle_mul(SExpression *ex, SymbolTable *ST) {
   if (!ex)
     return NULL;
-  SExpression *left = ex->pair->value, *right = ex->pair->next->pair->value;
-  if (!right)
-    return NULL;
-  left = eval(left, ST);
-  right = eval(right, ST);
-  if ((left->type != tt_int) ||
-      (right->type != tt_int))
-    return NULL;
-  else {
-    SExpression *result = alloc_term(tt_int);
-    result->integer = left->integer * right->integer;
-    return result;
+  SExpression *result = alloc_term(tt_int);
+  result->integer = 1;
+  SExpression *current = ex, *tmp;
+  while (current) {
+    tmp = eval(current->pair->value, ST);
+    if (tmp->type == tt_int)
+      result->integer *= tmp->integer;
+    else
+      return NULL;
+    current = current->pair->next;
   }
+  return result;
 }
 
 
 SExpression *handle_plus(SExpression *ex, SymbolTable *ST) {
   if (!ex)
     return NULL;
-  SExpression *left = ex->pair->value, *right = ex->pair->next->pair->value;
-  if (!right)
-    return NULL;
-  left = eval(left, ST);
-  right = eval(right, ST);
-  if ((left->type != tt_int) ||
-      (right->type != tt_int))
-    return NULL;
-  else {
-    SExpression *result = alloc_term(tt_int);
-    result->integer = left->integer + right->integer;
-    return result;
+  SExpression *result = alloc_term(tt_int);
+  result->integer = 0;
+  SExpression *current = ex, *tmp;
+  while (current) {
+    tmp = eval(current->pair->value, ST);
+    if (tmp->type == tt_int)
+      result->integer += tmp->integer;
+    else
+      return NULL;
+    current = current->pair->next;
   }
+  return result;
 }
 
 
 SExpression *handle_minus(SExpression *ex, SymbolTable *ST) {
-  if (!ex)
+  if (!ex ||
+      ex->type != tt_pair ||
+      ex->pair->value->type != tt_int)
     return NULL;
-  SExpression *left = ex->pair->value, *right = ex->pair->next->pair->value;
-  if (!right)
-    return NULL;
-  left = eval(left, ST);
-  right = eval(right, ST);
-  if ((left->type != tt_int) ||
-      (right->type != tt_int))
-    return NULL;
+  SExpression *result = alloc_term(tt_int);
+  result->integer = ex->pair->value->integer;
+  if (!ex->pair->next)
+    result->integer = -result->integer;
   else {
-    SExpression *result = alloc_term(tt_int);
-    result->integer = left->integer - right->integer;
-    return result;
+    SExpression *current = ex->pair->next, *tmp;
+    while (current) {
+      tmp = eval(current->pair->value, ST);
+      if (tmp->type == tt_int)
+	result->integer -= tmp->integer;
+      else
+	return NULL;
+      current = current->pair->next;
+    }
   }
+  return result; 
 }
 
 
