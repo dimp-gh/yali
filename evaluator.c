@@ -146,14 +146,29 @@ SExpression *apply(SExpression *function, SExpression *args, SymbolTable *ST) {
 
 
 SExpression *handle_define(SExpression *ex, SymbolTable *ST) {
-  char *name = strdup(ex->pair->value->mention);
-  SExpression *lambda = duplicate_expression(ex->pair->next->pair->value);
-  printf("Handling define:\n");
-  printf("Name is %s.\n", name);
-  printf("Args:"); print_expression(lambda->lambda->args);
-  printf("Body:"); print_expression(lambda->lambda->body);
-  printf("Arity = %d.\n", lambda->lambda->arity);
-  ht_insert(ST, name, lambda);
+  if (!ex || 
+      list_length(ex) != 2)
+    return NULL;
+  if (ex->pair->value->type == tt_mention) {
+    char *name = strdup(ex->pair->value->mention);
+    SExpression *lambda = duplicate_expression(ex->pair->next->pair->value);
+    //printf("Handling define:\n");
+    //printf("Name is %s.\n", name);
+    //printf("Args:"); print_expression(lambda->lambda->args);
+    //printf("Body:"); print_expression(lambda->lambda->body);
+    //printf("Arity = %d.\n", lambda->lambda->arity);
+    ht_insert(ST, name, lambda);
+  } else if (ex->pair->value->type == tt_pair) {
+    SExpression *namewargs = ex->pair->value;
+    SExpression *body = ex->pair->next->pair->value;
+    SExpression *l = alloc_term(tt_lambda);
+    char *name = strdup(namewargs->pair->value->mention);
+    l->lambda->args = duplicate_expression(namewargs->pair->next);
+    l->lambda->body = duplicate_expression(body);
+    l->lambda->arity = list_length(l->lambda->args);
+    ht_insert(ST, name, l);
+  } else
+    return NULL;
   return alloc_term(tt_nil);
 }
 
