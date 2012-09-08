@@ -50,12 +50,16 @@ SExpression *eval(SExpression *expr, SymbolTable *ST) {
       return handle_define(tail, ST);
     else if (strcmp(call, "if") == 0)
       return handle_if(tail, ST);
-    else if (strcmp(call, "eq") == 0)
+    else if (strcmp(call, "=") == 0)
       return handle_eq(tail, ST);
-    else if (strcmp(call, "dec") == 0)
+    else if (strcmp(call, "--") == 0)
       return handle_dec(tail, ST);
     else if (strcmp(call, "*") == 0)
-    return handle_mul(tail, ST);
+      return handle_mul(tail, ST);
+    else if (strcmp(call, "+") == 0)
+      return handle_plus(tail, ST);
+    else if (strcmp(call, "-") == 0)
+      return handle_minus(tail, ST);
     // special forms check end
     else {
       SExpression *function = ht_lookup(ST, call);
@@ -239,4 +243,43 @@ SExpression *handle_mul(SExpression *ex, SymbolTable *ST) {
     return result;
   }
 }
+
+
+SExpression *handle_plus(SExpression *ex, SymbolTable *ST) {
+  if (!ex)
+    return NULL;
+  SExpression *left = ex->pair->value, *right = ex->pair->next->pair->value;
+  if (!right)
+    return NULL;
+  left = eval(left, ST);
+  right = eval(right, ST);
+  if ((left->type != tt_int) ||
+      (right->type != tt_int))
+    return NULL;
+  else {
+    SExpression *result = alloc_term(tt_int);
+    result->integer = left->integer + right->integer;
+    return result;
+  }
+}
+
+
+SExpression *handle_minus(SExpression *ex, SymbolTable *ST) {
+  if (!ex)
+    return NULL;
+  SExpression *left = ex->pair->value, *right = ex->pair->next->pair->value;
+  if (!right)
+    return NULL;
+  left = eval(left, ST);
+  right = eval(right, ST);
+  if ((left->type != tt_int) ||
+      (right->type != tt_int))
+    return NULL;
+  else {
+    SExpression *result = alloc_term(tt_int);
+    result->integer = left->integer - right->integer;
+    return result;
+  }
+}
+
 

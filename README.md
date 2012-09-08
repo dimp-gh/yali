@@ -5,10 +5,12 @@ Usage:
 `./lambda`  
 
 And you're in REPL. Now you can define your own factorial function. Just like this:  
-`>>> (define fact (lambda (x) (if (eq x 0) 1 (* x (fact (dec x))))))`  
+`>>> (define fact (lambda (x) (if (= x 0) 1 (* x (fact (dec x))))))`  
 Done. Now you can calculate factorials:  
 `>>> (fact 15)`  
-`Eval = 1307674368000`
+`Eval = 1307674368000`  
+Another example:  
+`>>> (define fibo (lambda (x) (if (= x 1) 1 (if (= x 2) 1 (+ (fibo (- x 1)) (fibo (- x 2)))))))`
 
 TODO:
 * Split current shitty parser to good lexer and recursive parser. ✔
