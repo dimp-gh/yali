@@ -2,7 +2,7 @@
 #include <string.h>
 #include <assert.h>
 #include "hashtable.h"
-#include "bnparser.h"
+#include "parser.h"
 #include "lexer.h"
 #include "sexpr.h"
 #include "common.h"

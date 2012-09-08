@@ -3,7 +3,7 @@
 #include <string.h>
 #include "common.h"
 #include "lexer.h"
-#include "bnparser.h"
+#include "parser.h"
 #include "sexpr.h"
 #include "hashtable.h"
 #include "evaluator.h"

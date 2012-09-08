@@ -4,6 +4,7 @@
 #include "sexpr.h"
 #include "common.h"
 #include "lexer.h"
+#include "parser.h"
 
 
 #define DEBUG(X)  
