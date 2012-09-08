@@ -1,9 +1,6 @@
 *.o
-lambda
-hash
-list
-lex
-parse
+tests
+repl
 *~
 *#*
 #*

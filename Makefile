@@ -1,38 +1,16 @@
 CC = gcc
 CFLAGS  = -g -Wall
 
-default: lambda
+default: repl
 
+repl:		repl.o common.o lexer.o bnparser.o hashtable.o evaluator.o
+		$(CC) $(CFLAGS) -o repl common.o repl.o lexer.o bnparser.o hashtable.o evaluator.o
 
-hash:		hashtable.o testtable.o
-		$(CC) $(CFLAGS) -o hash hashtable.o testtable.o
-
-list:		linklist.o testlist.o
-		$(CC) $(CFLAGS) -o list linklist.o testlist.o
-
-lambda:		common.o lambdatest.o lexer.o bnparser.o hashtable.o evaluator.o
-		$(CC) $(CFLAGS) -o lambda common.o lambdatest.o lexer.o bnparser.o hashtable.o evaluator.o
-
-lex:		lexer.o lextest.o
-		$(CC) $(CFLAGS) -o lex lexer.o lextest.o 
-
-parse:		bnparsertest.o bnparser.o lexer.o common.o
-		$(CC) $(CFLAGS) -o parse bnparsertest.o bnparser.o lexer.o common.o 
-
-linklist.o:	linklist.c linklist.h
-		$(CC) $(CFLAGS) -o linklist.o -c linklist.c
-
-testlist.o:	testlist.c
-		$(CC) $(CFLAGS) -o testlist.o -c testlist.c
+tests:		test.o common.o lexer.o bnparser.o hashtable.o evaluator.o
+		$(CC) $(CFLAGS) -o tests common.o test.o lexer.o bnparser.o hashtable.o evaluator.o
 
 hashtable.o:	hashtable.c hashtable.h
 		$(CC) $(CFLAGS) -o hashtable.o -c hashtable.c
-
-testtable.o:	testtable.c
-		$(CC) $(CFLAGS) -o testtable.o -c testtable.c
-
-lambdatest.o:	lambdatest.c
-		$(CC) $(CFLAGS) -o lambdatest.o -c lambdatest.c
 
 common.o:	common.c common.h
 		$(CC) $(CFLAGS) -o common.o -c common.c
@@ -49,11 +27,14 @@ lextest.o:	lextest.c
 bnparser.o:	bnparser.c bnparser.h
 		$(CC) $(CFLAGS) -o bnparser.o -c bnparser.c
 
-bnparsertest.o:	bnparsertest.c
-		$(CC) $(CFLAGS) -o bnparsertest.o -c bnparsertest.c
-
 evaluator.o:	evaluator.c evaluator.h
 		$(CC) $(CFLAGS) -o evaluator.o -c evaluator.c
 
+repl.o:		repl.c
+		$(CC) $(CFLAGS) -o repl.o -c repl.c
+
+test.o:		test.c
+		$(CC) $(CFLAGS) -o test.o -c test.c
+
 clean:
-		rm -f hash list lex parse lambda *.o *~
+		rm -f tests repl *.o *~
