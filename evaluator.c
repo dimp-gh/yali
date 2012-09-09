@@ -112,6 +112,23 @@ SExpression *substitute_mention(SExpression *source, char *key, SExpression *val
 }
   
 
+SExpression *substitute_all(SExpression *body, SExpression *args, SExpression *values, SymbolTable *ST) {
+  SExpression *curr_arg = args;
+  SExpression *curr_value = values;
+  SExpression *curr_body = body;
+  while(curr_arg &&
+	curr_value &&
+	curr_arg->pair->value &&
+	curr_value->pair->value) {
+    curr_body = substitute_mention(curr_body, 
+				   curr_arg->pair->value->mention,
+				   eval(curr_value->pair->value, ST));
+    curr_arg = curr_arg->pair->next;
+    curr_value = curr_value->pair->next;
+  }
+  return curr_body;
+} 
+
 SExpression *apply(SExpression *function, SExpression *args, SymbolTable *ST) {
   /*
    *  if lambda arity is 0 and there's no arguments:
@@ -127,19 +144,17 @@ SExpression *apply(SExpression *function, SExpression *args, SymbolTable *ST) {
   //printf("Args: "); print_expression(function->lambda->args);
   //printf("Params: "); print_expression(args);
   //printf("Body: "); print_expression(function->lambda->body);
-  SExpression *result = NULL;
-  if ((function->lambda->arity == 0) && 
-      (list_length(args) == 0))
-     return eval(function->lambda->body, ST);
-  else if ((list_length(args) == 1) &&
-	   (function->lambda->arity == 1)) {
-    SExpression *subs = substitute_mention(duplicate_expression(function->lambda->body),
-					   function->lambda->args->pair->value->mention,
-					   eval(args->pair->value, ST));
+  if (!function || !args || !ST)
+    return NULL;
+  else if (function->lambda->arity == list_length(args)) {
+    SExpression *subs = substitute_all(duplicate_expression(function->lambda->body),
+				       function->lambda->args,
+				       args,
+				       ST);
     //printf("After substitution: "); print_expression(subs);
     return eval(subs, ST);
-  }
-  return result;
+  } else
+    return NULL;
 }
 
 
@@ -288,5 +303,3 @@ SExpression *handle_minus(SExpression *ex, SymbolTable *ST) {
   }
   return result; 
 }
-
-
