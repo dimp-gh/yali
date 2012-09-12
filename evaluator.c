@@ -50,18 +50,20 @@ SExpression *eval(SExpression *expr) {
     SExpression *args = duplicate_expression(tail);
     char *call = head->mention;
     // checking for special forms / core library functions
-    if (strcmp(call, "define") == 0) {
-      SExpression *(*define_func)(SExpression *, SymbolTable *) = find_core_function(call);
-      return (define_func) ? define_func(args, UserLibrary) : NULL;
-    } else {
-      SExpression *(*core_func)(SExpression *) = find_core_function(call);
-      return (core_func) ? core_func(args) : NULL;
-    }
+    SExpression *(*core_func)(SExpression *) = NULL;
+    SExpression *(*define_func)(SExpression *, SymbolTable *) = NULL;
+    if ((strcmp(call, "define") == 0) &&
+	(define_func = find_core_function(call)) != NULL)
+      return define_func(args, UserLibrary);
+    else if ((core_func = find_core_function(call)) != NULL)
+      return core_func(args);
     // special forms check end
-    SExpression *function = ht_lookup(UserLibrary, call);
-    if (!function) // undefined name
-      return NULL;
-    return apply(function, args);
+    else {
+      SExpression *function = ht_lookup(UserLibrary, call);
+      if (!function) // undefined name
+	return NULL;
+      return apply(function, args);
+    }
   }
 }
     
