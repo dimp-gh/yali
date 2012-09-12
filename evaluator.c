@@ -1,11 +1,14 @@
-#include "evaluator.h"
-#include "common.h"
 #include <stddef.h>
 #include <string.h>
 #include <stdio.h>
+#include "evaluator.h"
+#include "common.h"
+#include "corelib.h"
 
+extern SymbolTable *CoreLibrary;
+SymbolTable *UserLibrary;
 
-SExpression *eval(SExpression *expr, SymbolTable *ST) {
+SExpression *eval(SExpression *expr) {
   /*
    * if SExpression is pair AND
    *    head of SExpression is lambda or function name:
@@ -30,7 +33,7 @@ SExpression *eval(SExpression *expr, SymbolTable *ST) {
     return NULL;
   //printf("Evaluating: "); print_expression(expr);
   if (expr->type == tt_mention)
-    return ht_lookup(ST, expr->mention);
+    return ht_lookup(UserLibrary, expr->mention);
   else if (expr->type == tt_int ||
 	   expr->type == tt_bool)
     return expr;
@@ -44,31 +47,24 @@ SExpression *eval(SExpression *expr, SymbolTable *ST) {
     SExpression *head = expr->pair->value, *tail = expr->pair->next;
     if (head->type != tt_mention) // if head of list is not function call
       return NULL;
+    SExpression *args = duplicate_expression(tail);
     char *call = head->mention;
-    // checking for special forms
-    if (strcmp(call, "define") == 0)
-      return handle_define(tail, ST);
-    else if (strcmp(call, "if") == 0)
-      return handle_if(tail, ST);
-    else if (strcmp(call, "=") == 0)
-      return handle_eq(tail, ST);
-    else if (strcmp(call, "*") == 0)
-      return handle_mul(tail, ST);
-    else if (strcmp(call, "+") == 0)
-      return handle_plus(tail, ST);
-    else if (strcmp(call, "-") == 0)
-      return handle_minus(tail, ST);
-    // special forms check end
-    else {
-      SExpression *function = ht_lookup(ST, call);
-      if (!function) // undefined name
-	return NULL;
-      SExpression *args = duplicate_expression(tail);
-      return apply(function, args, ST);
+    // checking for special forms / core library functions
+    if (strcmp(call, "define") == 0) {
+      SExpression *(*define_func)(SExpression *, SymbolTable *) = find_core_function(call);
+      return (define_func) ? define_func(args, UserLibrary) : NULL;
+    } else {
+      SExpression *(*core_func)(SExpression *) = find_core_function(call);
+      return (core_func) ? core_func(args) : NULL;
     }
+    // special forms check end
+    SExpression *function = ht_lookup(UserLibrary, call);
+    if (!function) // undefined name
+      return NULL;
+    return apply(function, args);
   }
 }
-
+    
 SExpression *substitute_mention(SExpression *source, char *key, SExpression *value) {
   if (!source)
     return NULL;
@@ -112,7 +108,7 @@ SExpression *substitute_mention(SExpression *source, char *key, SExpression *val
 }
   
 
-SExpression *substitute_all(SExpression *body, SExpression *args, SExpression *values, SymbolTable *ST) {
+SExpression *substitute_all(SExpression *body, SExpression *args, SExpression *values) {
   SExpression *curr_arg = args;
   SExpression *curr_value = values;
   SExpression *curr_body = body;
@@ -122,14 +118,14 @@ SExpression *substitute_all(SExpression *body, SExpression *args, SExpression *v
 	curr_value->pair->value) {
     curr_body = substitute_mention(curr_body, 
 				   curr_arg->pair->value->mention,
-				   eval(curr_value->pair->value, ST));
+				   eval(curr_value->pair->value));
     curr_arg = curr_arg->pair->next;
     curr_value = curr_value->pair->next;
   }
   return curr_body;
 } 
 
-SExpression *apply(SExpression *function, SExpression *args, SymbolTable *ST) {
+SExpression *apply(SExpression *function, SExpression *args) {
   /*
    *  if lambda arity is 0 and there's no arguments:
    *      eval lambda body
@@ -144,16 +140,22 @@ SExpression *apply(SExpression *function, SExpression *args, SymbolTable *ST) {
   //printf("Args: "); print_expression(function->lambda->args);
   //printf("Params: "); print_expression(args);
   //printf("Body: "); print_expression(function->lambda->body);
-  if (!function || !args || !ST)
+  if (!function || !args || !UserLibrary)
     return NULL;
   else if (function->lambda->arity == list_length(args)) {
     SExpression *subs = substitute_all(duplicate_expression(function->lambda->body),
 				       function->lambda->args,
-				       args,
-				       ST);
+				       args);
     //printf("After substitution: "); print_expression(subs);
-    return eval(subs, ST);
+    return eval(subs);
   } else
     return NULL;
 }
 
+
+void init_libraries() {
+  if (!UserLibrary)
+    UserLibrary = ht_create(32);
+  if (!CoreLibrary)
+    load_core_library();
+}

@@ -11,16 +11,16 @@
 
 void repl() {
   char buffer[256];
-  SymbolTable *ST = ht_create(8);
   SExpression *test, *result;
   Token_node *tokens;
+  init_libraries();
   do {
     printf(">>> ");
     gets(buffer);
     tokens = lex(buffer);
     test = parse(tokens);
     printf("Expression: "); print_expression(test);
-    result = eval(test, ST);
+    result = eval(test);
     if (result) {
       printf("Eval = "); print_expression(result);
     } else

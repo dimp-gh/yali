@@ -1,3 +1,6 @@
+#include <stddef.h>
+#include <string.h>
+#include <stdio.h>
 #include "corelib.h"
 #include "common.h"
 
@@ -6,18 +9,18 @@ SymbolTable *CoreLibrary = NULL;
 
 
 SExpression *handle_define(SExpression *args, SymbolTable *user_library) {
-  if (!pair ||
-      list_length(ex) != 2 ||
+  if (!args ||
+      list_length(args) != 2 ||
       !user_library)
     return NULL;
   if (args->pair->value->type == tt_mention) {
     char *name = strdup(args->pair->value->mention);
     SExpression *lambda = duplicate_expression(args->pair->next->pair->value);
-    //printf("Handling define:\n");
-    //printf("Name is %s.\n", name);
-    //printf("Args:"); print_expression(lambda->lambda->args);
-    //printf("Body:"); print_expression(lambda->lambda->body);
-    //printf("Arity = %d.\n", lambda->lambda->arity);
+    printf("Handling define:\n");
+    printf("Name is %s.\n", name);
+    printf("Args:"); print_expression(lambda->lambda->args);
+    printf("Body:"); print_expression(lambda->lambda->body);
+    printf("Arity = %d.\n", lambda->lambda->arity);
     ht_insert(user_library, name, lambda);
   } else if (args->pair->value->type == tt_pair) {
     SExpression *namewargs = args->pair->value;
@@ -26,7 +29,12 @@ SExpression *handle_define(SExpression *args, SymbolTable *user_library) {
     char *name = strdup(namewargs->pair->value->mention);
     l->lambda->args = duplicate_expression(namewargs->pair->next);
     l->lambda->body = duplicate_expression(body);
-    l->lambda->arity = list_length(l->lambda->args);
+    l->lambda->arity = list_length(l->lambda->args); 
+    printf("Handling define:\n");
+    printf("Name is %s.\n", name);
+    printf("Args:"); print_expression(l->lambda->args);
+    printf("Body:"); print_expression(l->lambda->body);
+    printf("Arity = %d.\n", l->lambda->arity);
     ht_insert(user_library, name, l);
   } else
     return NULL;
@@ -38,23 +46,23 @@ SExpression *handle_if(SExpression *args) {
   SExpression *predic = (args->pair->value) ? duplicate_expression(args->pair->value) : NULL,
     *ifbranch = (args->pair->next->pair->value) ? duplicate_expression(args->pair->next->pair->value) : NULL,
     *elsebranch = (args->pair->next->pair->next) ? duplicate_expression(args->pair->next->pair->next->pair->value) : NULL;
-  //printf("Handling if.\n");
-  //printf("Predicate:\t"); print_expression(predic);
-  //printf("If-branch:\t"); print_expression(ifbranch);
-  //printf("Else-branch:\t"); print_expression(elsebranch);
+  printf("Handling if.\n");
+  printf("Predicate:\t"); print_expression(predic);
+  printf("If-branch:\t"); print_expression(ifbranch);
+  printf("Else-branch:\t"); print_expression(elsebranch);
   if (!predic ||
       !ifbranch ||
       !elsebranch)
     return NULL;
-  //printf("Evaluating predicate.\n");
+  printf("Evaluating predicate.\n");
   predic = eval(predic);
   if ((predic->type == tt_nil) ||
       ((predic->type == tt_bool) &&
        (predic->boolean == false))) {
-    //printf("Evaluating else-branch.\n");
+    printf("Evaluating else-branch.\n");
     return eval(elsebranch);
   } else {
-    //printf("Evaluating if-branch.\n");
+    printf("Evaluating if-branch.\n");
     return eval(ifbranch);
   }
 }
@@ -131,7 +139,7 @@ SExpression *handle_plus(SExpression *args) {
 }
 
 
-SExpression *handle_minus(SExpression *ex) {
+SExpression *handle_minus(SExpression *args) {
   if (!args ||
       args->type != tt_pair ||
       args->pair->value->type != tt_int)
@@ -168,7 +176,7 @@ void load_core_library() {
 }
 
 
-void *find_function(char *mention) {
+void *find_core_function(char *mention) {
   if (!mention || 
       !CoreLibrary)
     return NULL;

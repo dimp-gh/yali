@@ -7,9 +7,9 @@
 
 typedef HashTable SymbolTable;
 
-SExpression *eval(SExpression *expr, SymbolTable *ST);
-SExpression *apply(SExpression *function, SExpression *args, SymbolTable *ST);
-
+SExpression *eval(SExpression *expr);
+SExpression *apply(SExpression *function, SExpression *args);
+void init_libraries();
 
 
 #endif

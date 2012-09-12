@@ -5,7 +5,7 @@
 
 
 void load_core_library();
-void *find_function(char *mention);
+void *find_core_function(char *mention);
 
 
 #endif

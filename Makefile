@@ -3,11 +3,11 @@ CFLAGS  = -g -Wall
 
 default: repl
 
-repl:		repl.o common.o lexer.o parser.o hashtable.o evaluator.o
-		$(CC) $(CFLAGS) -o repl common.o repl.o lexer.o parser.o hashtable.o evaluator.o
+repl:		repl.o common.o corelib.o lexer.o parser.o hashtable.o evaluator.o
+		$(CC) $(CFLAGS) -o repl common.o corelib.o repl.o lexer.o parser.o hashtable.o evaluator.o
 
-tests:		test.o common.o lexer.o parser.o hashtable.o evaluator.o
-		$(CC) $(CFLAGS) -o tests common.o test.o lexer.o parser.o hashtable.o evaluator.o
+tests:		test.o common.o lexer.o corelib.o parser.o hashtable.o evaluator.o
+		$(CC) $(CFLAGS) -o tests common.o corelib.o test.o lexer.o parser.o hashtable.o evaluator.o
 
 tags:		
 		ctags -e -R .
@@ -35,6 +35,9 @@ repl.o:		repl.c
 
 test.o:		test.c
 		$(CC) $(CFLAGS) -o test.o -c test.c
+
+corelib.o:	corelib.c corelib.h
+		$(CC) $(CFLAGS) -o corelib.o -c corelib.c
 
 clean:
 		rm -f tests repl TAGS *.o *~
