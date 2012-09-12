@@ -9,6 +9,9 @@ repl:		repl.o common.o lexer.o parser.o hashtable.o evaluator.o
 tests:		test.o common.o lexer.o parser.o hashtable.o evaluator.o
 		$(CC) $(CFLAGS) -o tests common.o test.o lexer.o parser.o hashtable.o evaluator.o
 
+tags:		
+		ctags -e -R .
+
 hashtable.o:	hashtable.c hashtable.h
 		$(CC) $(CFLAGS) -o hashtable.o -c hashtable.c
 
@@ -34,4 +37,4 @@ test.o:		test.c
 		$(CC) $(CFLAGS) -o test.o -c test.c
 
 clean:
-		rm -f tests repl *.o *~
+		rm -f tests repl TAGS *.o *~
