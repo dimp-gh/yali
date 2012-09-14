@@ -47,7 +47,7 @@ SExpression *eval(SExpression *expr) {
   else { // if expression is pair and isn't empty
     SExpression *head = expr->pair->value, *tail = expr->pair->next;
     if (head->type != tt_mention) // if head of list is not function call
-      return NULL;
+      return expr;
     SExpression *args = duplicate_expression(tail);
     char *call = head->mention;
     // checking for special forms / core library functions
