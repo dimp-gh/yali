@@ -18,8 +18,8 @@ TODO:
 * TCO.
 * Add string data type.
 * Add minimalistic standard library of built-in functions. ✔
- - List operations (car, cdr, cons, map, reduce).
- - Type conversions.
+ - List operations (car, cdr, cons, map, reduce). ✔
+ - Type conversions and predicates. ✔
  - Basic arithmetic, logic and comparison operations. ✔
  - I/O functions.
  - Time measurement functions.
