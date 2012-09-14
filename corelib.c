@@ -6,12 +6,13 @@
 
 
 SymbolTable *CoreLibrary = NULL;
+extern SymbolTable *UserLibrary;
 
 
-SExpression *handle_define(SExpression *args, SymbolTable *user_library) {
+SExpression *handle_define(SExpression *args) {
   if (!args ||
       list_length(args) != 2 ||
-      !user_library)
+      !UserLibrary)
     return NULL;
   SExpression *func = NULL;
   char *name;
@@ -33,7 +34,7 @@ SExpression *handle_define(SExpression *args, SymbolTable *user_library) {
   //printf("Args:"); print_expression(l->lambda->args);
   //printf("Body:"); print_expression(l->lambda->body);
   //printf("Arity = %d.\n", l->lambda->arity);
-  ht_insert(user_library, name, func);
+  ht_insert(UserLibrary, name, func);
   return alloc_term(tt_nil);
 }
 

@@ -6,7 +6,8 @@
 #include "corelib.h"
 
 extern SymbolTable *CoreLibrary;
-SymbolTable *UserLibrary;
+SymbolTable *UserLibrary = NULL;
+
 
 SExpression *eval(SExpression *expr) {
   /*
@@ -51,11 +52,7 @@ SExpression *eval(SExpression *expr) {
     char *call = head->mention;
     // checking for special forms / core library functions
     SExpression *(*core_func)(SExpression *) = NULL;
-    SExpression *(*define_func)(SExpression *, SymbolTable *) = NULL;
-    if ((strcmp(call, "define") == 0) &&
-	(define_func = find_core_function(call)) != NULL)
-      return define_func(args, UserLibrary);
-    else if ((core_func = find_core_function(call)) != NULL)
+    if ((core_func = find_core_function(call)) != NULL)
       return core_func(args);
     // special forms check end
     else {
@@ -66,6 +63,7 @@ SExpression *eval(SExpression *expr) {
     }
   }
 }
+
     
 SExpression *substitute_mention(SExpression *source, char *key, SExpression *value) {
   if (!source)
@@ -126,6 +124,7 @@ SExpression *substitute_all(SExpression *body, SExpression *args, SExpression *v
   }
   return curr_body;
 } 
+
 
 SExpression *apply(SExpression *function, SExpression *args) {
   /*
