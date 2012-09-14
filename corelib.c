@@ -64,6 +64,7 @@ SExpression *handle_if(SExpression *args) {
   }
 }
 
+// Comparison functions
 
 SExpression *handle_equal(SExpression *args) {
   if (!args)
@@ -139,11 +140,10 @@ SExpression *handle_plus(SExpression *args) {
 
 SExpression *handle_minus(SExpression *args) {
   if (!args ||
-      args->type != tt_pair ||
-      args->pair->value->type != tt_int)
+      args->type != tt_pair)
     return NULL;
   SExpression *result = alloc_term(tt_int);
-  result->integer = args->pair->value->integer;
+  result->integer = eval(args->pair->value)->integer;
   if (!args->pair->next)
     result->integer = -result->integer;
   else {
@@ -163,10 +163,9 @@ SExpression *handle_minus(SExpression *args) {
 
 SExpression *handle_divide(SExpression *args) {
   if (!args ||
-      args->type != tt_pair ||
-      args->pair->value->type != tt_int)
+      args->type != tt_pair)
     return NULL;
-  int dividend = args->pair->value->integer;
+  int dividend = eval(args->pair->value)->integer;
   SExpression *current = args->pair->next, *tmp;
   while (current) {
     tmp = eval(current->pair->value);
@@ -184,11 +183,10 @@ SExpression *handle_divide(SExpression *args) {
 
 SExpression *handle_remainder(SExpression *args) {
   if (!args ||
-      args->type != tt_pair ||
-      args->pair->value->type != tt_int)
+      args->type != tt_pair)
     return NULL;
-  int dividend = args->pair->value->integer;
-  int divisor = args->pair->next->pair->value->integer;
+  int dividend = eval(args->pair->value)->integer;
+  int divisor = eval(args->pair->next->pair->value)->integer;
   SExpression *result = alloc_term(tt_int);
   result->integer = dividend % divisor;
   return result; 
