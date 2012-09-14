@@ -99,6 +99,7 @@ SExpression *handle_equal(SExpression *args) {
   return answer;
 }
 
+// Arithmetic functions.
   
 SExpression *handle_mult(SExpression *args) {
   if (!args)
@@ -160,6 +161,43 @@ SExpression *handle_minus(SExpression *args) {
 }
 
 
+SExpression *handle_divide(SExpression *args) {
+  if (!args ||
+      args->type != tt_pair ||
+      args->pair->value->type != tt_int)
+    return NULL;
+  int dividend = args->pair->value->integer;
+  SExpression *current = args->pair->next, *tmp;
+  while (current) {
+    tmp = eval(current->pair->value);
+    if (tmp->type == tt_int)
+      dividend /= tmp->integer;
+    else
+      return NULL;
+    current = current->pair->next;
+  }
+  SExpression *result = alloc_term(tt_int);
+  result->integer = dividend;
+  return result;
+}
+
+
+SExpression *handle_remainder(SExpression *args) {
+  if (!args ||
+      args->type != tt_pair ||
+      args->pair->value->type != tt_int)
+    return NULL;
+  int dividend = args->pair->value->integer;
+  int divisor = args->pair->next->pair->value->integer;
+  SExpression *result = alloc_term(tt_int);
+  result->integer = dividend % divisor;
+  return result; 
+}
+
+
+// End of arithmetic functions.
+
+
 void load_core_library() {
   if (CoreLibrary)
     return;
@@ -168,6 +206,8 @@ void load_core_library() {
   ht_insert(CoreLibrary, "+", handle_plus);
   ht_insert(CoreLibrary, "-", handle_minus);
   ht_insert(CoreLibrary, "*", handle_mult);
+  ht_insert(CoreLibrary, "div", handle_divide);
+  ht_insert(CoreLibrary, "rem", handle_remainder);
   ht_insert(CoreLibrary, "if", handle_if);
   ht_insert(CoreLibrary, "define", handle_define);
 }
