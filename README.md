@@ -20,7 +20,7 @@ TODO:
 * Add minimalistic standard library of built-in functions. ✔
  - List operations (car, cdr, cons, map, reduce).
  - Type conversions.
- - Basic arithmetic, logic and comparison operations.
+ - Basic arithmetic, logic and comparison operations. ✔
  - I/O functions.
  - Time measurement functions.
 * Create own data types, instead of using C types.
