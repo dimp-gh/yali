@@ -266,9 +266,47 @@ SExpression *handle_remainder(SExpression *args) {
   return result; 
 }
 
-
 // End of arithmetic functions.
+// List functions
 
+
+SExpression *handle_car(SExpression *arg) {
+  if (!arg ||
+      arg->type != tt_pair)
+    return NULL;
+  SExpression *evald =  eval(arg->pair->value);
+  return evald->pair->value;
+}
+
+
+SExpression *handle_cdr(SExpression *arg) {
+  if (!arg ||
+      arg->type != tt_pair)
+    return NULL;
+  SExpression *list = eval(arg->pair->value);
+  return (list->pair->next) ? list->pair->next : alloc_term(tt_nil);
+}
+
+
+SExpression *handle_list(SExpression *args) {
+  if (!args ||
+      args->type != tt_pair)
+    return NULL;  
+  SExpression *current = args, *tmp;
+  SExpression *root = NULL, *last = NULL;
+  while (current) {
+    tmp = eval(current->pair->value);
+    if (!root)
+      last = root = alloc_term(tt_pair);
+    else
+      last = last->pair->next = alloc_term(tt_pair);
+    last->pair->value = tmp;
+    current = current->pair->next;
+  }
+  return root;
+}
+
+// End of list functions.
 
 void load_core_library() {
   if (CoreLibrary)
@@ -287,10 +325,18 @@ void load_core_library() {
   ht_insert(CoreLibrary, "*", handle_mult);
   ht_insert(CoreLibrary, "div", handle_divide);
   ht_insert(CoreLibrary, "rem", handle_remainder);
-  // Condition.
+  // Conditions.
   ht_insert(CoreLibrary, "if", handle_if);
   // Define.
   ht_insert(CoreLibrary, "define", handle_define);
+  // Loops?
+  // I/O?
+  // Random?
+  // Lists.
+  ht_insert(CoreLibrary, "car", handle_car);
+  ht_insert(CoreLibrary, "cdr", handle_cdr);
+  ht_insert(CoreLibrary, "list", handle_list);
+  // Type predicates?
 }
 
 
