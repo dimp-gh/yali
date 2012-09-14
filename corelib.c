@@ -133,6 +133,47 @@ SExpression *handle_greater(SExpression *args) {
 }
 
 // End of comparison functions.
+// Logic functions.
+
+
+SExpression *handle_and(SExpression *args) {
+  if (!args)
+    return NULL;
+  SExpression *current = args, *tmp;
+  SExpression *result = alloc_term(tt_bool);
+  result->boolean = true;
+  while (current) {
+    tmp = eval(current->pair->value);
+    if ((tmp->type == tt_bool && tmp->boolean == false) ||
+	(tmp->type == tt_nil)) {
+      result->boolean = false;
+      break;
+    }
+    current = current->pair->next;
+  }
+  return result;
+}
+
+
+SExpression *handle_or(SExpression *args) {
+  if (!args)
+    return NULL;
+  SExpression *current = args, *tmp;
+  while (current) {
+    tmp = eval(current->pair->value);
+    if ((tmp->type == tt_bool && tmp->boolean == false) ||
+	(tmp->type == tt_nil))
+      current = current->pair->next;
+    else
+      return tmp;
+  }
+  SExpression *false_res = alloc_term(tt_bool);
+  false_res->boolean = false;
+  return false_res;
+}
+
+
+// End of logic functions.
 // Arithmetic functions.
   
 SExpression *handle_mult(SExpression *args) {
@@ -233,15 +274,22 @@ void load_core_library() {
   if (CoreLibrary)
     return;
   CoreLibrary = ht_create(32);
+  // Comparison.
   ht_insert(CoreLibrary, "=", handle_equal);
   ht_insert(CoreLibrary, ">", handle_greater);
   ht_insert(CoreLibrary, "<", handle_less);
+  // Logic.
+  ht_insert(CoreLibrary, "or", handle_or);
+  ht_insert(CoreLibrary, "and", handle_and);
+  // Arithmetic.
   ht_insert(CoreLibrary, "+", handle_plus);
   ht_insert(CoreLibrary, "-", handle_minus);
   ht_insert(CoreLibrary, "*", handle_mult);
   ht_insert(CoreLibrary, "div", handle_divide);
   ht_insert(CoreLibrary, "rem", handle_remainder);
+  // Condition.
   ht_insert(CoreLibrary, "if", handle_if);
+  // Define.
   ht_insert(CoreLibrary, "define", handle_define);
 }
 
