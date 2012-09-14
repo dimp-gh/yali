@@ -100,6 +100,39 @@ SExpression *handle_equal(SExpression *args) {
   return answer;
 }
 
+
+SExpression *handle_less(SExpression *args) {
+  if (!args)
+    return NULL;
+  SExpression *left = args->pair->value, *right = args->pair->next->pair->value;
+  left = eval(left);
+  right = eval(right);
+  SExpression *answer = alloc_term(tt_bool);
+  if (left->type != right->type &&
+      left->type != tt_int)
+    answer->boolean = false;
+  else 
+    answer->boolean = (left->integer < right->integer) ? true : false;
+  return answer;
+}
+
+
+SExpression *handle_greater(SExpression *args) {
+  if (!args)
+    return NULL;
+  SExpression *left = args->pair->value, *right = args->pair->next->pair->value;
+  left = eval(left);
+  right = eval(right);
+  SExpression *answer = alloc_term(tt_bool);
+  if (left->type != right->type &&
+      left->type != tt_int)
+    answer->boolean = false;
+  else 
+    answer->boolean = (left->integer > right->integer) ? true : false;
+  return answer;
+}
+
+// End of comparison functions.
 // Arithmetic functions.
   
 SExpression *handle_mult(SExpression *args) {
@@ -201,6 +234,8 @@ void load_core_library() {
     return;
   CoreLibrary = ht_create(32);
   ht_insert(CoreLibrary, "=", handle_equal);
+  ht_insert(CoreLibrary, ">", handle_greater);
+  ht_insert(CoreLibrary, "<", handle_less);
   ht_insert(CoreLibrary, "+", handle_plus);
   ht_insert(CoreLibrary, "-", handle_minus);
   ht_insert(CoreLibrary, "*", handle_mult);
