@@ -307,6 +307,28 @@ SExpression *handle_list(SExpression *args) {
 }
 
 // End of list functions.
+// Type predicates.
+
+SExpression *handle_is_int(SExpression *arg) {
+  if (!arg ||
+      arg->type != tt_pair)
+    return NULL;
+  SExpression *result = alloc_term(tt_bool);
+  result->boolean = (arg->pair->value->type == tt_int) ? true : false;
+  return result;
+}
+
+
+SExpression *handle_is_nil(SExpression *arg) {
+  if (!arg ||
+      arg->type != tt_pair)
+    return NULL;
+  SExpression *result = alloc_term(tt_bool);
+  result->boolean = (arg->pair->value->type == tt_nil) ? true : false;
+  return result;
+}
+
+// End of type predicates.
 
 void load_core_library() {
   if (CoreLibrary)
@@ -336,7 +358,9 @@ void load_core_library() {
   ht_insert(CoreLibrary, "car", handle_car);
   ht_insert(CoreLibrary, "cdr", handle_cdr);
   ht_insert(CoreLibrary, "list", handle_list);
-  // Type predicates?
+  // Type predicates.
+  ht_insert(CoreLibrary, "int?", handle_is_int);
+  ht_insert(CoreLibrary, "nil?", handle_is_nil);
 }
 
 
