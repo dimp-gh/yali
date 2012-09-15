@@ -43,24 +43,28 @@ SExpression *eval(SExpression *expr) {
   else if (expr->type != tt_pair) // if expression is one elementary-typed element
     return expr;
   else if (!expr->pair->value) // if expression is empty list
-    return NULL;
+    return expr;
   else { // if expression is pair and isn't empty
     SExpression *head = expr->pair->value, *tail = expr->pair->next;
-    if (head->type != tt_mention) // if head of list is not function call
+    if (head->type == tt_mention) {// if head of list is not function call
+      SExpression *args = duplicate_expression(tail);
+      char *call = head->mention;
+      // checking for special forms / core library functions
+      SExpression *(*core_func)(SExpression *) = NULL;
+      if ((core_func = find_core_function(call)) != NULL)
+	return core_func(args);
+      // special forms check end
+      else {
+	SExpression *function = ht_lookup(UserLibrary, call);
+	if (!function) // undefined name
+	  return NULL;
+	return apply(function, args);
+      }
+    } else if (head->type == tt_lambda) {
+      SExpression *args = duplicate_expression(tail);
+      return apply(head, args);
+    } else
       return expr;
-    SExpression *args = duplicate_expression(tail);
-    char *call = head->mention;
-    // checking for special forms / core library functions
-    SExpression *(*core_func)(SExpression *) = NULL;
-    if ((core_func = find_core_function(call)) != NULL)
-      return core_func(args);
-    // special forms check end
-    else {
-      SExpression *function = ht_lookup(UserLibrary, call);
-      if (!function) // undefined name
-	return NULL;
-      return apply(function, args);
-    }
   }
 }
 
