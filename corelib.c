@@ -306,6 +306,24 @@ SExpression *handle_list(SExpression *args) {
   return root;
 }
 
+
+SExpression *handle_cons(SExpression *args) {
+  if (!args ||
+      args->type != tt_pair)
+    return NULL;
+  SExpression *val_arg = eval(args->pair->value);
+  SExpression *result = alloc_term(tt_pair);
+  result->pair->value = val_arg;
+  SExpression *list_arg = eval(args->pair->next->pair->value);
+  if (list_arg->type == tt_pair) {  
+    result->pair->next = list_arg;
+  } else if (list_arg->type == tt_nil)
+    ;//do nothing
+  else
+    return NULL;
+  return result;
+}
+
 // End of list functions.
 // Type predicates.
 
@@ -357,6 +375,7 @@ void load_core_library() {
   // Lists.
   ht_insert(CoreLibrary, "car", handle_car);
   ht_insert(CoreLibrary, "cdr", handle_cdr);
+  ht_insert(CoreLibrary, "cons", handle_cons);
   ht_insert(CoreLibrary, "list", handle_list);
   // Type predicates.
   ht_insert(CoreLibrary, "int?", handle_is_int);
