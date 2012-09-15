@@ -1,0 +1,60 @@
+;; File with code examples in Yali.
+
+
+; Simple square function.
+(define (sqr x) (* x x)
+; >>> (sqr 15)
+; Eval = 225.
+
+
+; Recursive factorial function
+(define (fact x)
+  (if (= x 0)
+      1
+      (* x (fact (- x 1)))))
+; >>> (fact 10)
+; Eval = 3628800.
+
+
+; Fibonacci function.
+(define (fibo x)
+  (if (= x 1)
+      1
+      (if (= x 2)
+          1
+          (+ (fibo (- x 1))
+             (fibo (- x 2))))))
+; >>> (fibo 11)
+; Eval = 89.
+
+
+; Tail-recursive factorial function
+(define (fact-acc x acc)
+  (if (= x 0)
+      acc
+      (fact-acc (- x 1)
+                (* acc x))))
+
+(define (fact' x) (fact-acc x 1))
+; >>> (fact' 10)
+; Eval = 3628800.
+
+
+; Sum of the list
+(define (sum list)
+  (if (nil? list)
+      0
+      (+ (car list)
+         (sum (cdr list)))))
+; >>> (sum (list 1 2 3 4 5 6 7 8 9 10))
+; Eval = 55.
+
+
+; Map-list function.
+(define (map func list)
+  (if (nil? list)
+      #nil
+      (cons (func (car list))
+            (map func (cdr list)))))
+; >>> (map sqr (list 1 2 3 4 5 6))
+; Eval = (1 4 9 16 25 36).
