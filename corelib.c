@@ -74,7 +74,13 @@ SExpression *handle_equal(SExpression *args) {
   right = eval(right);
   SExpression *answer = alloc_term(tt_bool);
   if (left->type != right->type)
-    answer->boolean = false;
+    if ((left->type == tt_int && right->type == tt_float) ||
+	(left->type == tt_float && right->type == tt_int)) {
+      double left_val = (left->type == tt_float) ? left->real : left->integer;
+      double right_val = (right->type == tt_float) ? left->real : left->integer;
+      answer->boolean = (left_val == right_val);
+    } else
+      answer->boolean = false;
   else {
     switch (left->type) {
     case tt_bool:
@@ -86,6 +92,9 @@ SExpression *handle_equal(SExpression *args) {
     case tt_int:
       answer->boolean = (left->integer == right->integer) ? true : false;
       break;
+    case tt_float:
+      answer->boolean = (left->real == right->real) ? true : false;
+      break;
     case tt_mention:
       answer->boolean = (strcmp(left->mention, right->mention) == 0) ? true : false;
       break;
@@ -94,6 +103,7 @@ SExpression *handle_equal(SExpression *args) {
     case tt_lambda:
       answer = false;
     default:
+      if 
       break;
     }
   }
@@ -108,11 +118,19 @@ SExpression *handle_less(SExpression *args) {
   left = eval(left);
   right = eval(right);
   SExpression *answer = alloc_term(tt_bool);
-  if (left->type != right->type &&
-      left->type != tt_int)
-    answer->boolean = false;
-  else 
+  if (left->type == tt_float &&
+      left->type == tt_float)
+    answer->boolean = (left->real < right->real) ? true : false;
+  else if (left->type == tt_int &&
+	   right->type == tt_int)
     answer->boolean = (left->integer < right->integer) ? true : false;
+  else if ((left->type == tt_int && right->type == tt_float) ||
+	   (left->type == tt_float && right->type == tt_int)) {
+    double left_val = (left->type == tt_float) ? left->real : left->integer;
+    double right_val = (right->type == tt_float) ? left->real : left->integer;
+    answer->boolean = (left_val < right_val);
+  } else
+    answer->boolean = false;    
   return answer;
 }
 
@@ -124,11 +142,19 @@ SExpression *handle_greater(SExpression *args) {
   left = eval(left);
   right = eval(right);
   SExpression *answer = alloc_term(tt_bool);
-  if (left->type != right->type &&
-      left->type != tt_int)
-    answer->boolean = false;
-  else 
+  if (left->type == tt_float &&
+      left->type == tt_float)
+    answer->boolean = (left->real > right->real) ? true : false;
+  else if (left->type == tt_int &&
+	   right->type == tt_int)
     answer->boolean = (left->integer > right->integer) ? true : false;
+  else if ((left->type == tt_int && right->type == tt_float) ||
+	   (left->type == tt_float && right->type == tt_int)) {
+    double left_val = (left->type == tt_float) ? left->real : left->integer;
+    double right_val = (right->type == tt_float) ? left->real : left->integer;
+    answer->boolean = (left_val > right_val);
+  } else
+    answer->boolean = false;    
   return answer;
 }
 
