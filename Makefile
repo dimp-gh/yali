@@ -25,10 +25,10 @@ TEST_SOURCE = \
 
 default: repl
 
-repl:	
+repl:	clean	
 	$(CC) $(CFLAGS) -o $(REPL_NAME) $(REPL_SOURCE)
 
-test:	
+test:	clean
 	$(CC) $(CFLAGS) -o $(TEST_NAME) $(TEST_SOURCE) 
 
 tags:		
