@@ -1,43 +1,38 @@
 CC = gcc
 CFLAGS  = -g -Wall
+SOURCE_DIR = ./src
+TEST_DIR = ./tests
+REPL_NAME = repl
+TEST_NAME = test
+REPL_SOURCE = \
+	$(SOURCE_DIR)/lexer.c \
+	$(SOURCE_DIR)/parser.c \
+	$(SOURCE_DIR)/common.c \
+	$(SOURCE_DIR)/hashtable.c \
+	$(SOURCE_DIR)/evaluator.c \
+	$(SOURCE_DIR)/corelib.c \
+	$(SOURCE_DIR)/repl.c
+
+TEST_SOURCE = \
+	$(SOURCE_DIR)/lexer.c \
+	$(SOURCE_DIR)/parser.c \
+	$(SOURCE_DIR)/common.c \
+	$(SOURCE_DIR)/hashtable.c \
+	$(SOURCE_DIR)/evaluator.c \
+	$(SOURCE_DIR)/corelib.c \
+	$(TEST_DIR)/test.c
+
 
 default: repl
 
-repl:		repl.o common.o corelib.o lexer.o parser.o hashtable.o evaluator.o
-		$(CC) $(CFLAGS) -o repl common.o corelib.o repl.o lexer.o parser.o hashtable.o evaluator.o
+repl:	
+	$(CC) $(CFLAGS) -o $(REPL_NAME) $(REPL_SOURCE)
 
-tests:		test.o common.o lexer.o corelib.o parser.o hashtable.o evaluator.o
-		$(CC) $(CFLAGS) -o tests common.o corelib.o test.o lexer.o parser.o hashtable.o evaluator.o
+test:	
+	$(CC) $(CFLAGS) -o $(TEST_NAME) $(TEST_SOURCE) 
 
 tags:		
-		ctags -e -R .
+	ctags -e -R .
 
-hashtable.o:	hashtable.c hashtable.h
-		$(CC) $(CFLAGS) -o hashtable.o -c hashtable.c
-
-common.o:	common.c common.h
-		$(CC) $(CFLAGS) -o common.o -c common.c
-
-lexer.o:	lexer.c lexer.h
-		$(CC) $(CFLAGS) -o lexer.o -c lexer.c
-
-lextest.o:	lextest.c
-		$(CC) $(CFLAGS) -o lextest.o -c lextest.c
-
-parser.o:	parser.c parser.h
-		$(CC) $(CFLAGS) -o parser.o -c parser.c
-
-evaluator.o:	evaluator.c evaluator.h
-		$(CC) $(CFLAGS) -o evaluator.o -c evaluator.c
-
-repl.o:		repl.c
-		$(CC) $(CFLAGS) -o repl.o -c repl.c
-
-test.o:		test.c
-		$(CC) $(CFLAGS) -o test.o -c test.c
-
-corelib.o:	corelib.c corelib.h
-		$(CC) $(CFLAGS) -o corelib.o -c corelib.c
-
-clean:
-		rm -f tests repl TAGS *.o *~
+clean:		
+	rm -f $(TEST_NAME) $(REPL_NAME) *.o *~

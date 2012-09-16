@@ -1,7 +1,6 @@
 *.o
-tests
+test
 repl
-TAGS
 *~
 *#*
 #*
