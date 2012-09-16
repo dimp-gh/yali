@@ -59,13 +59,13 @@ void _print_expression(SExpression *expr, int withtypes) {
 
 void print_expression(SExpression *root) {
   _print_expression(root, 0);
-  printf(".\n");
+  printf("\n");
 }
 
 
 void print_typed_expression(SExpression *root) {
   _print_expression(root, 1);
-  printf(".\n");
+  printf("\n");
 }
 
 
