@@ -264,13 +264,13 @@ SExpression *handle_minus(SExpression *args) {
       args->type != tt_pair)
     return NULL;
   int all_ints = 1;
-  SExpression *dividend = args->pair->value;
+  SExpression *start = eval(args->pair->value);
   double diff;
-  if (dividend->type == tt_int)
-    diff = dividend->integer;
-  else if (dividend->type == tt_float) {
+  if (start->type == tt_int)
+    diff = start->integer;
+  else if (start->type == tt_float) {
     all_ints = 0;
-    diff = dividend->real;
+    diff = start->real;
   } else
     return NULL;
   if (!args->pair->next)
@@ -301,22 +301,26 @@ SExpression *handle_minus(SExpression *args) {
 }
 
 
+
 SExpression *handle_div(SExpression *args) {
   if (!args ||
       args->type != tt_pair)
     return NULL;
-  int dividend = eval(args->pair->value)->integer;
+  SExpression *dividend = eval(args->pair->value);
+  if (dividend->type != tt_int) 
+    return NULL;
+  long int quotient = dividend->integer;
   SExpression *current = args->pair->next, *tmp;
   while (current) {
     tmp = eval(current->pair->value);
     if (tmp->type == tt_int)
-      dividend /= tmp->integer;
+      quotient /= tmp->integer;
     else
       return NULL;
     current = current->pair->next;
   }
   SExpression *result = alloc_term(tt_int);
-  result->integer = dividend;
+  result->integer = quotient;
   return result;
 }
 
@@ -325,11 +329,22 @@ SExpression *handle_remainder(SExpression *args) {
   if (!args ||
       args->type != tt_pair)
     return NULL;
-  int dividend = eval(args->pair->value)->integer;
-  int divisor = eval(args->pair->next->pair->value)->integer;
+  SExpression *dividend = eval(args->pair->value);
+  if (dividend->type != tt_int) 
+    return NULL;
+  long int remainder = dividend->integer;
+  SExpression *current = args->pair->next, *tmp;
+  while (current) {
+    tmp = eval(current->pair->value);
+    if (tmp->type == tt_int)
+      remainder %= tmp->integer;
+    else
+      return NULL;
+    current = current->pair->next;
+  }
   SExpression *result = alloc_term(tt_int);
-  result->integer = dividend % divisor;
-  return result; 
+  result->integer = remainder;
+  return result;
 }
 
 // End of arithmetic functions.
@@ -429,6 +444,7 @@ void load_core_library() {
   ht_insert(CoreLibrary, "+", handle_plus);
   ht_insert(CoreLibrary, "-", handle_minus);
   ht_insert(CoreLibrary, "*", handle_mult);
+  ht_insert(CoreLibrary, "/", handle_divide);
   ht_insert(CoreLibrary, "div", handle_div);
   ht_insert(CoreLibrary, "rem", handle_remainder);
   // Conditions.
@@ -445,6 +461,7 @@ void load_core_library() {
   ht_insert(CoreLibrary, "list", handle_list);
   // Type predicates.
   ht_insert(CoreLibrary, "int?", handle_is_int);
+  ht_insert(CoreLibrary, "float?", handle_is_float);
   ht_insert(CoreLibrary, "nil?", handle_is_nil);
 }
 
