@@ -36,7 +36,8 @@ SExpression *eval(SExpression *expr) {
   if (expr->type == tt_mention)
     return ht_lookup(UserLibrary, expr->mention);
   else if (expr->type == tt_int ||
-	   expr->type == tt_bool)
+	   expr->type == tt_bool ||
+	   expr->type == tt_float)
     return expr;
   else if (expr->type == tt_lambda)
     return expr;
