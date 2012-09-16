@@ -302,6 +302,35 @@ SExpression *handle_minus(SExpression *args) {
 
 
 
+SExpression *handle_divide(SExpression *args) {
+  if (!args ||
+      args->type != tt_pair)
+    return NULL;
+  SExpression *dividend = eval(args->pair->value);
+  double quotient;
+  if (dividend->type == tt_int)
+    quotient = dividend->integer;
+  else if (dividend->type == tt_float)
+    quotient = dividend->real;
+  else
+    return NULL;
+  SExpression *current = args->pair->next, *tmp;
+  while (current) {
+    tmp = eval(current->pair->value);
+    if (tmp->type == tt_int)
+      quotient /= (double) tmp->integer;
+    else if (tmp->type == tt_float)
+      quotient -= tmp->real;
+    else
+      return NULL;
+    current = current->pair->next;
+  }
+  SExpression *result = alloc_term(tt_float);
+  result->real = quotient;   
+  return result; 
+}
+
+
 SExpression *handle_div(SExpression *args) {
   if (!args ||
       args->type != tt_pair)
@@ -426,6 +455,17 @@ SExpression *handle_is_nil(SExpression *arg) {
   result->boolean = (arg->pair->value->type == tt_nil) ? true : false;
   return result;
 }
+
+
+SExpression *handle_is_float(SExpression *arg) {
+  if (!arg ||
+      arg->type != tt_pair)
+    return NULL;
+  SExpression *result = alloc_term(tt_bool);
+  result->boolean = (arg->pair->value->type == tt_float) ? true : false;
+  return result;
+}
+
 
 // End of type predicates.
 
