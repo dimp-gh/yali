@@ -158,7 +158,7 @@ Token_node *lex(char *text) {
 	state = lex_in_string;
 	pbuf = buffer;
       } else {
-	// We've got non-whitespace, non-paren, non-comment character.
+	// We've got not whitespace, nor paren, nor comment, nor quote character.
 	// Clear buffer, add current char to buffer.
 	pbuf = buffer;
 	*pbuf++ = *current;
