@@ -48,13 +48,10 @@ int is_comment_mark(char *c) {
   return *c == ';';
 }
 
-int is_string(char *c) {
-  char first = *c, *current = c, end;
-  while (*current != '\0')
-    end = *current++;
-  return (first == '\'' && end == '\'') ||
-    (first == '"' && end == '"');
+int is_quote(char *c) {
+  return *c == '\'';
 }
+
 
 Token_node *alloc_token(enum Token_type type) {
   Token_node *res = malloc(sizeof(Token_node));
@@ -75,8 +72,6 @@ enum Token_type guess_type(char *str) {
     return token_float;
   else if (is_int(str))
     return token_integer;
-  else if (is_string(str))
-    return token_string;
   else
     return token_id;
 }
@@ -101,13 +96,23 @@ Token_node *lex(char *text) {
       if (*current == '\n')
 	state = lex_reading;
       break;
+    case lex_in_string:
+      if (is_quote(current)) {
+	*pbuf = '\0';
+	Token_node *str_token = alloc_token(token_string);
+	str_token->token->strval = strdup(buffer);
+	UPDATE_HEAD_LAST(head, last, str_token);
+	state = lex_reading;
+      } else
+	*pbuf++ = *current;
+      break;
     case lex_in_token:
       if (is_paren(current)) {
 	// Add buffer as token_id to tokens.
 	*pbuf = '\0';
 	Token_node *mention = alloc_token(guess_type(buffer));
 	mention->token->strval = strdup(buffer);
-	UPDATE_HEAD_LAST(head, last, mention); 
+	UPDATE_HEAD_LAST(head, last, mention);
 	// Add paren token to tokens.
 	Token_node *paren = alloc_token((*current == '(') ?
 					token_open_paren :
@@ -148,6 +153,10 @@ Token_node *lex(char *text) {
       } else if (is_whitespace(current)) {
 	// skip whitespace, do nothing
 	;
+      } else if (is_quote(current)) {
+	// switch state to lex_in_string
+	state = lex_in_string;
+	pbuf = buffer;
       } else {
 	// We've got non-whitespace, non-paren, non-comment character.
 	// Clear buffer, add current char to buffer.
@@ -192,7 +201,7 @@ void _print_tokens(Token_node *start) {
 	       (current->token->strval) ? current->token->strval : "<no_value>");
 	break;
       case token_string:
-	printf("%s:\"%s\" ", names[current->token->type],
+	printf("%s:'%s' ", names[current->token->type],
 	       (current->token->strval) ? current->token->strval : "<no_value>");
 	break;
       }

@@ -7,16 +7,6 @@
 #include "parser.h"
 
 
-char *duplicate_str_literal(char *literal) {
-  char *copy = malloc(sizeof(char) * (strlen(literal) - 1));
-  char *curr_lit = literal + 1, *curr_copy = copy;
-  while (*(curr_lit + 1) != '\0')
-    *curr_copy++ = *curr_lit++;
-  *curr_copy = '\0';
-  return copy;
-}
-  
-
 #define UPDATE_ROOT_LAST(R, L, N) {			\
   if (!R->pair->value) {				\
     R->pair->value = N;					\
@@ -52,7 +42,7 @@ Token_node *_parse_expression(Token_node *token_head, SExpression *root) {
       break;
     case token_string:
       new = alloc_term(tt_string);
-      new->string = duplicate_str_literal(current->token->strval);
+      new->string = strdup(current->token->strval);
       UPDATE_ROOT_LAST(root, last, new);
       break;
     case token_bool:

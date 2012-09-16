@@ -26,7 +26,8 @@ typedef struct token_el {
 enum Lex_state {
   lex_in_comment,
   lex_reading,
-  lex_in_token
+  lex_in_token,
+  lex_in_string
 };
   
 
