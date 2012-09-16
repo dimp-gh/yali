@@ -65,7 +65,7 @@ void test_print() {
 //
 
 void test_lex() {
-  char teststring[] = "(define 123 #nil;  123 456 \n #t #f  1.123)";
+  char teststring[] = "(define 123 #nil;  123 456 \n #t #f  1.123 1. .5 'hello world' )";
   Token_node *head = lex(teststring);
   if (!head)
     printf("Tokenize error.\n");
