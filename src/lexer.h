@@ -7,6 +7,7 @@ enum Token_type {
   token_id,
   token_integer,
   token_float,
+  token_string,
   token_bool,
   token_nil
 };
