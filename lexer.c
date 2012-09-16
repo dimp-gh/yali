@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "lexer.h"
 
+
 int is_bool(char* c) {
   return ((strcmp(c, "#t") == 0) || (strcmp(c, "#f") == 0));
 }
@@ -20,6 +21,19 @@ int is_int(char *c) {
     current++;
   }
   return 1;
+}
+
+int is_float(char *c) {
+  int dot_count = 0;
+  char *current = c;
+  while (*current != '\0') {
+    if (*current == '.')
+      dot_count++;
+    else if (!isdigit(*current))
+      return 0;
+    current++;
+  }
+  return dot_count == 1;
 }
 
 int is_whitespace(char c) {
@@ -44,11 +58,14 @@ Token_node *alloc_token(enum Token_type type) {
   return res;
 }
 
+
 enum Token_type guess_type(char *str) {
   if (is_nil(str))
     return token_nil;
   else if (is_bool(str))
     return token_bool;
+  else if (is_float(str))
+    return token_float;
   else if (is_int(str))
     return token_integer;
   else
@@ -62,6 +79,7 @@ enum Token_type guess_type(char *str) {
  else						\
    L = L->next = N;				\
 }
+
 
 Token_node *lex(char *text) {
   enum Lex_state state = lex_reading;
@@ -146,6 +164,7 @@ void _print_tokens(Token_node *start) {
 		     "close_paren:)",
 		     "id",
 		     "integer",
+		     "float",
 		     "bool",
 		     "nil"};
     do {
@@ -157,6 +176,7 @@ void _print_tokens(Token_node *start) {
       case token_nil:
       case token_id:
       case token_integer:
+      case token_float:
       case token_bool:
 	printf("%s:%s ", names[current->token->type],
 	       (current->token->strval) ? current->token->strval : "<no_value>");

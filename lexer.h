@@ -6,6 +6,7 @@ enum Token_type {
   token_close_paren,
   token_id,
   token_integer,
+  token_float,
   token_bool,
   token_nil
 };
