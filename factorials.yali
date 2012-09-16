@@ -24,7 +24,7 @@
       (foldl-acc func (cdr list) (func (car list) acc))))
 
 (define (foldl func list defval)
-  (foldl' func list defval))
+  (foldl-acc func list defval))
 
 (define (range start end)
   (if (> start end)
@@ -32,6 +32,6 @@
       (cons start
             (range (+ start 1) end))))
 
-(define (product list) (foldl (lambda (x acc) (* x acc)) list 1)) 
+(define (product list) (foldl (lambda (x acc) (* x acc)) list 1))
 
 (define (factorial-lists x) (product (range 1 x))
