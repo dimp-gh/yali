@@ -178,31 +178,34 @@ void _print_tokens(Token_node *start) {
     printf("Empty token stream.\n");
   else {
     Token_node *current = start;
-    char *names[] = {"open_paren:(",
-		     "close_paren:)",
-		     "id",
-		     "integer",
-		     "float",
-		     "string"
-		     "bool",
-		     "nil"};
     do {
       switch(current->token->type) {
       case token_open_paren:
-      case token_close_paren:
-	printf("%s ", names[current->token->type]);
+	printf("open_paren:( ");
 	break;
-      case token_nil:
+      case token_close_paren:
+	printf("close_paren:) ");
+	break;
       case token_id:
+	printf("id:%s ", current->token->strval);
+	break;
       case token_integer:
+	printf("integer:%s ", current->token->strval);
+	break;
       case token_float:
+	printf("float:%s ", current->token->strval);
+	break;
       case token_bool:
-	printf("%s:%s ", names[current->token->type],
-	       (current->token->strval) ? current->token->strval : "<no_value>");
+	printf("bool:%s ", current->token->strval);
 	break;
       case token_string:
-	printf("%s:'%s' ", names[current->token->type],
-	       (current->token->strval) ? current->token->strval : "<no_value>");
+	printf("string:'%s' ", current->token->strval);
+	break;
+      case token_nil:
+	printf("nil:%s ", current->token->strval);
+	break;
+      default:
+	printf("<unknown_token>:%s ", current->token->strval);
 	break;
       }
       current = current->next;
