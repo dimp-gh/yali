@@ -17,7 +17,7 @@ TODO:
 * Add lambdas as first-class objects. ✔
 * TCO.
 * Add _string_ data type.
-* Add _floating-point number_ data type. 
+* Add _floating-point number_ data type. ✔
 * Add minimalistic standard library of built-in functions. ✔
  - List operations (car, cdr, cons, map, reduce). ✔
  - Type conversions and predicates. ✔
