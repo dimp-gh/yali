@@ -6,6 +6,7 @@ typedef enum { false, true } bool;
 enum Term_type {
   tt_pair,
   tt_int,
+  tt_float,
   tt_nil,
   tt_bool,
   tt_lambda,
@@ -20,6 +21,7 @@ typedef struct sexp {
   union {
     struct List *pair;
     long int integer;
+    double real;
     void *nil;
     bool boolean;
     struct Lambda *lambda;
