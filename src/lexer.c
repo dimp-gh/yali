@@ -50,10 +50,10 @@ int is_comment_mark(char *c) {
 
 int is_string(char *c) {
   char first = *c, *current = c, end;
-  while (current != '\0')
+  while (*current != '\0')
     end = *current++;
-  return (start == '\'' && end == '\'') ||
-    (start == '"' && end == '"';
+  return (first == '\'' && end == '\'') ||
+    (first == '"' && end == '"');
 }
 
 Token_node *alloc_token(enum Token_type type) {
