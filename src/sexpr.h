@@ -7,6 +7,7 @@ enum Term_type {
   tt_pair,
   tt_int,
   tt_float,
+  tt_string,
   tt_nil,
   tt_bool,
   tt_lambda,
@@ -26,6 +27,7 @@ typedef struct sexp {
     bool boolean;
     struct Lambda *lambda;
     char *mention;
+    char *string;
   };
 } SExpression;
 

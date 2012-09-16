@@ -7,6 +7,7 @@ enum Token_type {
   token_id,
   token_integer,
   token_float,
+  token_string,
   token_bool,
   token_nil
 };
@@ -25,7 +26,8 @@ typedef struct token_el {
 enum Lex_state {
   lex_in_comment,
   lex_reading,
-  lex_in_token
+  lex_in_token,
+  lex_in_string
 };
   
 

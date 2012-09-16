@@ -36,16 +36,20 @@ int is_float(char *c) {
   return dot_count == 1;
 }
 
-int is_whitespace(char c) {
-  return isspace(c);
+int is_whitespace(char *c) {
+  return isspace(*c);
 }
 
-int is_paren(char c) {
-  return c == '(' || c == ')';
+int is_paren(char *c) {
+  return *c == '(' || *c == ')';
 }
 
-int is_comment_mark(char c) {
-  return c == ';';
+int is_comment_mark(char *c) {
+  return *c == ';';
+}
+
+int is_quote(char *c) {
+  return *c == '\'';
 }
 
 
@@ -92,13 +96,23 @@ Token_node *lex(char *text) {
       if (*current == '\n')
 	state = lex_reading;
       break;
+    case lex_in_string:
+      if (is_quote(current)) {
+	*pbuf = '\0';
+	Token_node *str_token = alloc_token(token_string);
+	str_token->token->strval = strdup(buffer);
+	UPDATE_HEAD_LAST(head, last, str_token);
+	state = lex_reading;
+      } else
+	*pbuf++ = *current;
+      break;
     case lex_in_token:
-      if (is_paren(*current)) {
+      if (is_paren(current)) {
 	// Add buffer as token_id to tokens.
 	*pbuf = '\0';
 	Token_node *mention = alloc_token(guess_type(buffer));
 	mention->token->strval = strdup(buffer);
-	UPDATE_HEAD_LAST(head, last, mention); 
+	UPDATE_HEAD_LAST(head, last, mention);
 	// Add paren token to tokens.
 	Token_node *paren = alloc_token((*current == '(') ?
 					token_open_paren :
@@ -106,7 +120,7 @@ Token_node *lex(char *text) {
 	UPDATE_HEAD_LAST(head, last, paren);
 	// Switch state to lex_reading.
 	state = lex_reading;
-      } else if (is_comment_mark(*current)) {
+      } else if (is_comment_mark(current)) {
 	// Add buffer as token_id to tokens.
 	*pbuf = '\0';
 	Token_node *mention = alloc_token(guess_type(buffer));
@@ -114,7 +128,7 @@ Token_node *lex(char *text) {
 	UPDATE_HEAD_LAST(head, last, mention);
 	// switch to state lex_in_comment
 	state = lex_in_comment;
-      } else if (is_whitespace(*current)) {
+      } else if (is_whitespace(current)) {
 	// Add buffer as token_id to tokens.
 	*pbuf = '\0';
 	Token_node *mention = alloc_token(guess_type(buffer));
@@ -127,20 +141,24 @@ Token_node *lex(char *text) {
 	*pbuf++ = *current;
       break;
     case lex_reading:
-      if (is_paren(*current)) {
+      if (is_paren(current)) {
 	// add paren token to tokens.
 	Token_node *paren = alloc_token((*current == '(') ?
 					token_open_paren :
 					token_close_paren);
 	UPDATE_HEAD_LAST(head, last, paren);
-      } else if (is_comment_mark(*current)) {
+      } else if (is_comment_mark(current)) {
 	// switch state to comment
 	state = lex_in_comment;
-      } else if (is_whitespace(*current)) {
+      } else if (is_whitespace(current)) {
 	// skip whitespace, do nothing
 	;
+      } else if (is_quote(current)) {
+	// switch state to lex_in_string
+	state = lex_in_string;
+	pbuf = buffer;
       } else {
-	// We've got non-whitespace, non-paren, non-comment character.
+	// We've got not whitespace, nor paren, nor comment, nor quote character.
 	// Clear buffer, add current char to buffer.
 	pbuf = buffer;
 	*pbuf++ = *current;
@@ -165,6 +183,7 @@ void _print_tokens(Token_node *start) {
 		     "id",
 		     "integer",
 		     "float",
+		     "string"
 		     "bool",
 		     "nil"};
     do {
@@ -180,11 +199,15 @@ void _print_tokens(Token_node *start) {
       case token_bool:
 	printf("%s:%s ", names[current->token->type],
 	       (current->token->strval) ? current->token->strval : "<no_value>");
+	break;
+      case token_string:
+	printf("%s:'%s' ", names[current->token->type],
+	       (current->token->strval) ? current->token->strval : "<no_value>");
+	break;
       }
       current = current->next;
     } while(current);
     printf(".\n");
   }
-}
-    
+}    
     

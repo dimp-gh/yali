@@ -17,6 +17,9 @@ void _print_expression(SExpression *expr, int withtypes) {
     case tt_float:
       printf("%s%f", TYPE("float:"), expr->real);
       break;
+    case tt_string:
+      printf("%s'%s'", TYPE("string:"), expr->string);
+      break;
     case tt_nil:
       printf("%s#nil", TYPE("nil:"));
       break;
@@ -56,13 +59,13 @@ void _print_expression(SExpression *expr, int withtypes) {
 
 void print_expression(SExpression *root) {
   _print_expression(root, 0);
-  printf(".\n");
+  printf("\n");
 }
 
 
 void print_typed_expression(SExpression *root) {
   _print_expression(root, 1);
-  printf(".\n");
+  printf("\n");
 }
 
 
@@ -94,6 +97,9 @@ SExpression *alloc_term(enum Term_type type) {
     break;
   case tt_float:
     res->real = 0;
+    break;
+  case tt_string:
+    res->string = NULL;
     break;
   case tt_bool:
     res->boolean = false;
@@ -137,6 +143,10 @@ void dealloc_expression(SExpression *expr) {
     free(expr->mention);
     free(expr);
     break;
+  case tt_string:
+    free(expr->string);
+    free(expr);
+    break;
   case tt_pair: {   
     SExpression *current = expr;
     SExpression *tmp;
@@ -170,6 +180,10 @@ SExpression *duplicate_expression(SExpression *ex) {
   case tt_float:
     result = alloc_term(tt_float);
     result->real = ex->real;
+    break;
+  case tt_string:
+    result = alloc_term(tt_string);
+    result->string = strdup(ex->string);
     break;
   case tt_mention:
     result = alloc_term(tt_mention);

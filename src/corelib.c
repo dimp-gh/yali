@@ -468,6 +468,15 @@ SExpression *handle_is_float(SExpression *arg) {
 
 
 // End of type predicates.
+// I/O functions.
+
+SExpression *handle_print(SExpression *arg) {
+  print_expression(arg->pair->value);
+  return alloc_term(tt_nil);
+}
+
+// End of I/O functions.
+
 
 void load_core_library() {
   if (CoreLibrary)
@@ -492,7 +501,8 @@ void load_core_library() {
   // Define.
   ht_insert(CoreLibrary, "define", handle_define);
   // Loops?
-  // I/O?
+  // I/O.
+  ht_insert(CoreLibrary, "print", handle_print);
   // Random?
   // Lists.
   ht_insert(CoreLibrary, "car", handle_car);

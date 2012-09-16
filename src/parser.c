@@ -7,8 +7,6 @@
 #include "parser.h"
 
 
-#define DEBUG(X)  
-
 #define UPDATE_ROOT_LAST(R, L, N) {			\
   if (!R->pair->value) {				\
     R->pair->value = N;					\
@@ -40,6 +38,11 @@ Token_node *_parse_expression(Token_node *token_head, SExpression *root) {
     case token_float:
       new = alloc_term(tt_float);
       new->real = atof(current->token->strval);
+      UPDATE_ROOT_LAST(root, last, new);
+      break;
+    case token_string:
+      new = alloc_term(tt_string);
+      new->string = strdup(current->token->strval);
       UPDATE_ROOT_LAST(root, last, new);
       break;
     case token_bool:
