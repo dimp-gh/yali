@@ -87,7 +87,8 @@ SExpression *substitute_mention(SExpression *source, char *key, SExpression *val
       break;
     case tt_string:
       source->type = tt_string;
-      source->string = strdup(value->string);
+      source->string = value->string;
+      break;
     case tt_bool:
       source->type = tt_bool;
       source->boolean = value->boolean;

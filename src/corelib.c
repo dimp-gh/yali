@@ -471,7 +471,7 @@ SExpression *handle_is_float(SExpression *arg) {
 // I/O functions.
 
 SExpression *handle_print(SExpression *arg) {
-  print_expression(arg->pair->value);
+  print_expression(eval(arg->pair->value));
   return alloc_term(tt_nil);
 }
 
