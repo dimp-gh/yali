@@ -7,15 +7,6 @@
 ; Eval = 225.
 
 
-; Recursive factorial function
-(define (fact x)
-  (if (= x 0)
-      1
-      (* x (fact (- x 1)))))
-; >>> (fact 10)
-; Eval = 3628800.
-
-
 ; Fibonacci function.
 (define (fibo x)
   (if (= x 1)
@@ -26,18 +17,6 @@
              (fibo (- x 2))))))
 ; >>> (fibo 11)
 ; Eval = 89.
-
-
-; Tail-recursive factorial function
-(define (fact-acc x acc)
-  (if (= x 0)
-      acc
-      (fact-acc (- x 1)
-                (* acc x))))
-
-(define (fact' x) (fact-acc x 1))
-; >>> (fact' 10)
-; Eval = 3628800.
 
 
 ; Sum of the list
@@ -60,3 +39,15 @@
 ; Eval = (1 4 9 16 25 36).
 ; >>> (map (lambda (x) (* x x x)) (list 1 2 3 4 5))
 ; Eval = (1 8 27 64 125).
+
+
+;; Left fold function.
+(define (foldl' func list acc)
+  (if (nil? list)
+      acc
+      (foldl' func (cdr list) (func (car list) acc))))
+
+(define (foldl func list defval)
+  (foldl' func list defval))
+; >>> (foldl (lambda (x acc) (* x acc)) (list 1 2 3 4 5) 1)
+; Eval = 120.

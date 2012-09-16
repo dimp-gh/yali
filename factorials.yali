@@ -1,0 +1,37 @@
+;; Factorial code examples. Essence of Yali.
+
+; Naive recursive factorial.
+(define (factorial-naive x)
+  (if (= x 0)
+      1
+      (* x (factorial-naive (- x 1)))))
+
+
+; Tail-recursive factorial.
+(define (fact-acc x acc)
+  (if (= x 0)
+      acc
+      (fact-acc (- x 1)
+                (* acc x))))
+
+(define (factorial-tail x) (fact-acc x 1))
+
+
+;; Factorial as left fold of list.
+(define (foldl-acc func list acc)
+  (if (nil? list)
+      acc
+      (foldl-acc func (cdr list) (func (car list) acc))))
+
+(define (foldl func list defval)
+  (foldl' func list defval))
+
+(define (range start end)
+  (if (> start end)
+      #nil
+      (cons start
+            (range (+ start 1) end))))
+
+(define (product list) (foldl (lambda (x acc) (* x acc)) list 1)) 
+
+(define (factorial-lists x) (product (range 1 x))
