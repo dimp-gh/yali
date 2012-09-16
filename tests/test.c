@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include "hashtable.h"
-#include "parser.h"
-#include "lexer.h"
-#include "sexpr.h"
-#include "common.h"
-#include "evaluator.h"
+#include "../src/hashtable.h"
+#include "../src/parser.h"
+#include "../src/lexer.h"
+#include "../src/sexpr.h"
+#include "../src/common.h"
+#include "../src/evaluator.h"
 
 
 //
