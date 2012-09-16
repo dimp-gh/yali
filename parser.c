@@ -37,6 +37,11 @@ Token_node *_parse_expression(Token_node *token_head, SExpression *root) {
       new->integer = atol(current->token->strval);
       UPDATE_ROOT_LAST(root, last, new);
       break;
+    case token_float:
+      new = alloc_term(tt_float);
+      new->real = atof(current->token->strval);
+      UPDATE_ROOT_LAST(root, last, new);
+      break;
     case token_bool:
       new = alloc_term(tt_bool);
       new->boolean = (strcmp(current->token->strval, "#t") == 0) ? true : false;
