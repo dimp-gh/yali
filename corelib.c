@@ -204,16 +204,27 @@ SExpression *handle_or(SExpression *args) {
 SExpression *handle_mult(SExpression *args) {
   if (!args)
     return NULL;
-  SExpression *result = alloc_term(tt_int);
-  result->integer = 1;
+  double product = 1;
+  int all_ints = 1;
   SExpression *current = args, *tmp;
   while (current) {
     tmp = eval(current->pair->value);
     if (tmp->type == tt_int)
-      result->integer *= tmp->integer;
-    else
+      product *= tmp->integer;
+    else if (tmp->type == tt_float) {
+      all_ints = 0;
+      product *= tmp->real;
+    } else
       return NULL;
     current = current->pair->next;
+  }
+  SExpression *result = NULL;
+  if (all_ints) {
+    result = alloc_term(tt_int);
+    result->integer = (long int) product;
+  } else {
+    result = alloc_term(tt_float);
+    result->real = product;
   }
   return result;
 }
@@ -222,16 +233,27 @@ SExpression *handle_mult(SExpression *args) {
 SExpression *handle_plus(SExpression *args) {
   if (!args)
     return NULL;
-  SExpression *result = alloc_term(tt_int);
-  result->integer = 0;
+  double sum = 0;
+  int all_ints = 1;
   SExpression *current = args, *tmp;
   while (current) {
     tmp = eval(current->pair->value);
     if (tmp->type == tt_int)
-      result->integer += tmp->integer;
-    else
+      sum += tmp->integer;
+    else if (tmp->type == tt_float) {
+      all_ints = 0;
+      sum += tmp->real;
+    } else
       return NULL;
     current = current->pair->next;
+  }
+  SExpression *result = NULL;
+  if (all_ints) {
+    result = alloc_term(tt_int);
+    result->integer = (long int) sum;
+  } else {
+    result = alloc_term(tt_float);
+    result->real = sum;
   }
   return result;
 }
@@ -241,26 +263,45 @@ SExpression *handle_minus(SExpression *args) {
   if (!args ||
       args->type != tt_pair)
     return NULL;
-  SExpression *result = alloc_term(tt_int);
-  result->integer = eval(args->pair->value)->integer;
+  int all_ints = 1;
+  SExpression *dividend = args->pair->value;
+  double diff;
+  if (dividend->type == tt_int)
+    diff = dividend->integer;
+  else if (dividend->type == tt_float) {
+    all_ints = 0;
+    diff = dividend->real;
+  } else
+    return NULL;
   if (!args->pair->next)
-    result->integer = -result->integer;
+    diff = -diff;
   else {
     SExpression *current = args->pair->next, *tmp;
     while (current) {
       tmp = eval(current->pair->value);
       if (tmp->type == tt_int)
-	result->integer -= tmp->integer;
-      else
+	diff -= tmp->integer;
+      else if (tmp->type == tt_float) {
+	all_ints = 0;
+	diff -= tmp->real;
+      } else
 	return NULL;
       current = current->pair->next;
     }
   }
+  SExpression *result = NULL;
+  if (all_ints) {
+    result = alloc_term(tt_int);
+    result->integer = (long int) diff;
+  } else {
+    result = alloc_term(tt_float);
+    result->real = diff;
+  }    
   return result; 
 }
 
 
-SExpression *handle_divide(SExpression *args) {
+SExpression *handle_div(SExpression *args) {
   if (!args ||
       args->type != tt_pair)
     return NULL;
@@ -388,7 +429,7 @@ void load_core_library() {
   ht_insert(CoreLibrary, "+", handle_plus);
   ht_insert(CoreLibrary, "-", handle_minus);
   ht_insert(CoreLibrary, "*", handle_mult);
-  ht_insert(CoreLibrary, "div", handle_divide);
+  ht_insert(CoreLibrary, "div", handle_div);
   ht_insert(CoreLibrary, "rem", handle_remainder);
   // Conditions.
   ht_insert(CoreLibrary, "if", handle_if);
