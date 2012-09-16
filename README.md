@@ -25,5 +25,6 @@ TODO:
  - I/O functions.
  - Time measurement functions.
 * Create own data types, instead of using C types.
-* Liquidate memory leaks in evaluator's core.
+* Liquidate memory leaks in evaluator's core. Preferrablt, by building GC.
 * Add scopes, preferably lexical.
+* Error reports.
