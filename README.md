@@ -24,6 +24,7 @@ TODO:
  - Basic arithmetic, logic and comparison operations. ✔
  - I/O functions.
  - Time measurement functions.
+ - Execution flow control function.
 * Create own data types, instead of using C types.
 * Liquidate memory leaks in evaluator's core. Preferrablt, by building GC.
 * Add scopes, preferably lexical.
