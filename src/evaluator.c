@@ -37,7 +37,8 @@ SExpression *eval(SExpression *expr) {
     return ht_lookup(UserLibrary, expr->mention);
   else if (expr->type == tt_int ||
 	   expr->type == tt_bool ||
-	   expr->type == tt_float)
+	   expr->type == tt_float ||
+	   expr->type == tt_string)
     return expr;
   else if (expr->type == tt_lambda)
     return expr;
@@ -84,6 +85,9 @@ SExpression *substitute_mention(SExpression *source, char *key, SExpression *val
       source->type = tt_float;
       source->real = value->real;
       break;
+    case tt_string:
+      source->type == tt_string;
+      source->string = strdup(value->string);
     case tt_bool:
       source->type = tt_bool;
       source->boolean = value->boolean;
