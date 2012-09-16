@@ -49,11 +49,11 @@ void test_print() {
   first->mention = strdup("define");
   second = root->pair->next = alloc_term(tt_pair);
   second->pair->value = alloc_term(tt_mention);
-  second->pair->value->mention = strdup("fifty-five");
+  second->pair->value->mention = strdup("zh");
   third = second->pair->next = alloc_term(tt_pair);
-  third->pair->value = alloc_term(tt_int);
-  third->pair->value->integer = 55;
-  printf("What is should be: (define fifty-five 55).\n");
+  third->pair->value = alloc_term(tt_float);
+  third->pair->value->real = 14.88;
+  printf("What is should be: (define zh 14.88).\n");
   printf("And what is it: ");
   print_typed_expression(root);
   dealloc_expression(root);
@@ -65,7 +65,7 @@ void test_print() {
 //
 
 void test_lex() {
-  char teststring[] = "(define 123 #nil;  123 456 \n #t #f)";
+  char teststring[] = "(define 123 #nil;  123 456 \n #t #f  1.123)";
   Token_node *head = lex(teststring);
   if (!head)
     printf("Tokenize error.\n");
@@ -81,7 +81,7 @@ void test_lex() {
 //
 
 void test_parse() {
-  char str[] = "(define #t #f #nil 1 2 3 fact)";
+  char str[] = "(define #t #f #nil 1 2 3 1.15 fact)";
   printf("Input: %s.\n", str);
   Token_node *head = lex(str);
   printf("Tokens: ");
