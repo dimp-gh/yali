@@ -80,6 +80,10 @@ SExpression *substitute_mention(SExpression *source, char *key, SExpression *val
       source->type = tt_int;
       source->integer = value->integer;
       break;
+    case tt_float:
+      source->type = tt_float;
+      source->real = value->real;
+      break;
     case tt_bool:
       source->type = tt_bool;
       source->boolean = value->boolean;
