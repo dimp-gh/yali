@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "common.h"
 
+
 #define TYPE(MARKER) (withtypes) ? MARKER : ""
 
 void _print_expression(SExpression *expr, int withtypes) {
@@ -12,6 +13,9 @@ void _print_expression(SExpression *expr, int withtypes) {
     switch (expr->type) {
     case tt_int:
       printf("%s%ld", TYPE("int:"), expr->integer);
+      break;
+    case tt_float:
+      printf("%s%f", TYPE("float:"), expr->real);
       break;
     case tt_nil:
       printf("%s#nil", TYPE("nil:"));
@@ -55,10 +59,12 @@ void print_expression(SExpression *root) {
   printf(".\n");
 }
 
+
 void print_typed_expression(SExpression *root) {
   _print_expression(root, 1);
   printf(".\n");
 }
+
 
 Lambda *alloc_lambda() {
   Lambda *lamb = malloc(sizeof(Lambda));
@@ -68,12 +74,14 @@ Lambda *alloc_lambda() {
   return lamb;
 }
 
+
 List *alloc_pair() {
   List *pair = malloc(sizeof(List));
   pair->value = NULL;
   pair->next = NULL;
    return pair;
 }
+
 
 SExpression *alloc_term(enum Term_type type) {
   SExpression *res = malloc(sizeof(SExpression));
@@ -83,6 +91,9 @@ SExpression *alloc_term(enum Term_type type) {
     break;
   case tt_int:
     res->integer = 0;
+    break;
+  case tt_float:
+    res->real = 0;
     break;
   case tt_bool:
     res->boolean = false;
@@ -102,6 +113,7 @@ SExpression *alloc_term(enum Term_type type) {
   return res;
 }
 
+
 void dealloc_lambda(Lambda *lambda) {
   if (!lambda)
     return;
@@ -110,12 +122,14 @@ void dealloc_lambda(Lambda *lambda) {
   free(lambda);
 }
 
+
 void dealloc_expression(SExpression *expr) {
   if (!expr)
     return;
   switch (expr->type) {
   case tt_nil:
   case tt_int:
+  case tt_float:
   case tt_bool:
     free(expr);
     break;
@@ -152,6 +166,10 @@ SExpression *duplicate_expression(SExpression *ex) {
   case tt_int:
     result = alloc_term(tt_int);
     result->integer = ex->integer;
+    break;
+  case tt_float:
+    result = alloc_term(tt_float);
+    result->real = ex->real;
     break;
   case tt_mention:
     result = alloc_term(tt_mention);
