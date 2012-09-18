@@ -477,7 +477,22 @@ SExpression *handle_print(SExpression *arg) {
 }
 
 // End of I/O functions.
+// Flow function
 
+SExpression *handle_flow(SExpression *args) {
+  if (!args ||
+      args->type != tt_pair)
+    return NULL;
+  SExpression *head = args, *current = head;
+  SExpression *result = NULL;
+  while (current) {
+    result = eval(current->pair->value);
+    current = current->pair->next;
+  }
+  return result;  
+}
+
+// End of flow function.
 
 void load_core_library() {
   if (CoreLibrary)
@@ -514,6 +529,8 @@ void load_core_library() {
   ht_insert(CoreLibrary, "int?", handle_is_int);
   ht_insert(CoreLibrary, "float?", handle_is_float);
   ht_insert(CoreLibrary, "nil?", handle_is_nil);
+  // Flow.
+  ht_insert(CoreLibrary, "flow", handle_flow);
 }
 
 
