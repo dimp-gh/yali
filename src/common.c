@@ -2,8 +2,8 @@
 #include <malloc.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include "common.h"
-
 
 #define TYPE(MARKER) (withtypes) ? MARKER : ""
 
@@ -230,4 +230,14 @@ int list_length(SExpression *list) {
     }
     return len;
   }
+}
+
+
+void report_error(char *format, ...) {
+  va_list argptr;
+  va_start(argptr, format);
+  fprintf(stderr, "Error: ");
+  vfprintf(stderr, format, argptr);
+  va_end(argptr);
+  fprintf(stderr, "\n");
 }
