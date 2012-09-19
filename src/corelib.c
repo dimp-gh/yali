@@ -36,11 +36,6 @@ SExpression *handle_define(SExpression *args) {
     report_error("Defining non-function value.");
     return NULL;
   }
-  //printf("Handling define:\n");
-  //printf("Name is %s.\n", name);
-  //printf("Args:"); print_expression(l->lambda->args);
-  //printf("Body:"); print_expression(l->lambda->body);
-  //printf("Arity = %d.\n", l->lambda->arity);
   if (ht_lookup(UserLibrary, name)) {
     report_error("Name %s is already defined.", name);
     return NULL;
@@ -51,28 +46,23 @@ SExpression *handle_define(SExpression *args) {
 
 
 SExpression *handle_if(SExpression *args) {
-  SExpression *predic = (args->pair->value) ? duplicate_expression(args->pair->value) : NULL,
-    *ifbranch = (args->pair->next->pair->value) ? duplicate_expression(args->pair->next->pair->value) : NULL,
-    *elsebranch = (args->pair->next->pair->next) ? duplicate_expression(args->pair->next->pair->next->pair->value) : NULL;
-  //printf("Handling if.\n");
-  //printf("Predicate:\t"); print_expression(predic);
-  //printf("If-branch:\t"); print_expression(ifbranch);
-  //printf("Else-branch:\t"); print_expression(elsebranch);
-  if (!predic ||
-      !ifbranch ||
-      !elsebranch)
+  int arg_count = list_length(args);
+  if (arg_count != 3) {
+    report_error("If takes exactly three arguments, not %d", arg_count);
     return NULL;
-  //printf("Evaluating predicate.\n");
-  predic = eval(predic);
-  if ((predic->type == tt_nil) ||
-      ((predic->type == tt_bool) &&
-       (predic->boolean == false))) {
-    //printf("Evaluating else-branch.\n");
-    return eval(elsebranch);
-  } else {
-    //printf("Evaluating if-branch.\n");
-    return eval(ifbranch);
   }
+  SExpression *predicate = args->pair->value,
+    *ifbranch = args->pair->next->pair->value,
+    *elsebranch = args->pair->next->pair->next->pair->value;
+  predicate = eval(predicate);
+  if (!predicate)
+    return NULL;
+  else if ((predicate->type == tt_nil) ||
+	   ((predicate->type == tt_bool) &&
+	    (predicate->boolean == false)))
+    return eval(elsebranch);
+  else
+    return eval(ifbranch);
 }
 
 // Comparison functions

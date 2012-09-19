@@ -54,7 +54,7 @@ void _print_expression(SExpression *expr, int withtypes) {
       break;
     }
   } else
-    printf("Null");
+    printf("Expression is NULL");
 }
 
 
