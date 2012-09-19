@@ -26,6 +26,7 @@ TODO:
  - Time measurement functions.
  - Execution flow control function.
 * Create own data types, instead of using C types.
-* Liquidate memory leaks in evaluator's core. Preferrablt, by building GC.
+* Liquidate memory leaks in evaluator's core. Preferrably, by building GC.
 * Add scopes, preferably lexical.
 * Error reports.
+* Static typing. (I'm not kidding.)
