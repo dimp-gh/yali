@@ -53,7 +53,8 @@ void _print_expression(SExpression *expr, int withtypes) {
       printf("Unknown(type=%d)", expr->type);
       break;
     }
-  }
+  } else
+    printf("Null");
 }
 
 
@@ -215,8 +216,9 @@ SExpression *duplicate_expression(SExpression *ex) {
 
 
 int list_length(SExpression *list) {
-  if ((!list) ||
-      (list->type != tt_pair))
+  if (!list)
+    return 0;
+  else if (list->type != tt_pair)
     return -1;
   else {
     SExpression *current = list;

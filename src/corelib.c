@@ -10,16 +10,21 @@ extern SymbolTable *UserLibrary;
 
 
 SExpression *handle_define(SExpression *args) {
-  if (!args ||
-      list_length(args) != 2 ||
-      !UserLibrary)
+  if (!UserLibrary)
     return NULL;
+  int arg_count = list_length(args);
+  if (arg_count != 2) {
+    report_error("Define takes exactly two arguments, not %d", arg_count);
+    return NULL;
+  }
   SExpression *func = NULL;
   char *name;
-  if (args->pair->value->type == tt_mention) {
+  if (args->pair->value->type == tt_mention &&
+      args->pair->next->type == tt_pair &&
+      args->pair->next->pair->value->type == tt_lambda) {  // Standard syntax: (define sqr (lambda (x) (* x x)))
     name = strdup(args->pair->value->mention);
     func = duplicate_expression(args->pair->next->pair->value);
-  } else if (args->pair->value->type == tt_pair) {
+  } else if (args->pair->value->type == tt_pair) { // Sugar syntax: (define (sqr x) (* x x)) 
     SExpression *namewargs = args->pair->value;
     SExpression *body = args->pair->next->pair->value;
     func = alloc_term(tt_lambda);
@@ -27,13 +32,19 @@ SExpression *handle_define(SExpression *args) {
     func->lambda->args = duplicate_expression(namewargs->pair->next);
     func->lambda->body = duplicate_expression(body);
     func->lambda->arity = list_length(func->lambda->args); 
-  } else
+  } else {
+    report_error("Defining non-function value.");
     return NULL;
+  }
   //printf("Handling define:\n");
   //printf("Name is %s.\n", name);
   //printf("Args:"); print_expression(l->lambda->args);
   //printf("Body:"); print_expression(l->lambda->body);
   //printf("Arity = %d.\n", l->lambda->arity);
+  if (ht_lookup(UserLibrary, name)) {
+    report_error("Name %s is already defined.", name);
+    return NULL;
+  }    
   ht_insert(UserLibrary, name, func);
   return alloc_term(tt_nil);
 }
