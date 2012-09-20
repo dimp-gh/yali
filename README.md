@@ -29,4 +29,4 @@ TODO:
 * Liquidate memory leaks in evaluator's core. Preferrably, by building GC.
 * Add scopes, preferably lexical.
 * Error reports.
-* Static typing. (I'm not kidding.)
+* Static typing. (I'm not kidding.) (Actually, i don't think it's possible. But i definitely can make a new form of `define`, `typed-define`, which will define a function with incapsulated type checking. And every time this function will be called, it will typecheck its arguments by itself. Example of syntax: `(define-typed (factorial x) (:: (int? x)) (...))`).
