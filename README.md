@@ -31,3 +31,4 @@ TODO:
  - Add blocks as first-class objects. Block is a sequence of SExpressions, evaluated from top to bottom (last expression evaluation result is returned). Block has its own lexical scope. So, define will define not lambda-object, but block-object.
 * Error reports.
 * Static typing. (I'm not kidding.) (Actually, i don't think it's possible. But i definitely can make a new form of `define`, `define-typed`, which will define a function with incapsulated type checking. And every time this function will be called, it will typecheck its arguments by itself. Example of syntax: `(define-typed (factorial x) (:: (int? x)) (...))`).
+* Add mode to interpret whole source files, not only repl-mode.
