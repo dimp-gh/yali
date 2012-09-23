@@ -2,8 +2,8 @@
 #include <malloc.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include "common.h"
-
 
 #define TYPE(MARKER) (withtypes) ? MARKER : ""
 
@@ -53,7 +53,8 @@ void _print_expression(SExpression *expr, int withtypes) {
       printf("Unknown(type=%d)", expr->type);
       break;
     }
-  }
+  } else
+    printf("Expression is NULL");
 }
 
 
@@ -215,8 +216,9 @@ SExpression *duplicate_expression(SExpression *ex) {
 
 
 int list_length(SExpression *list) {
-  if ((!list) ||
-      (list->type != tt_pair))
+  if (!list)
+    return 0;
+  else if (list->type != tt_pair)
     return -1;
   else {
     SExpression *current = list;
@@ -230,4 +232,14 @@ int list_length(SExpression *list) {
     }
     return len;
   }
+}
+
+
+void report_error(char *format, ...) {
+  va_list argptr;
+  va_start(argptr, format);
+  fprintf(stderr, "Error: ");
+  vfprintf(stderr, format, argptr);
+  va_end(argptr);
+  fprintf(stderr, "\n");
 }

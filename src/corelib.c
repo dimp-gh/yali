@@ -10,16 +10,21 @@ extern SymbolTable *UserLibrary;
 
 
 SExpression *handle_define(SExpression *args) {
-  if (!args ||
-      list_length(args) != 2 ||
-      !UserLibrary)
+  if (!UserLibrary)
     return NULL;
+  int arg_count = list_length(args);
+  if (arg_count != 2) {
+    report_error("Define takes exactly two arguments, not %d", arg_count);
+    return NULL;
+  }
   SExpression *func = NULL;
   char *name;
-  if (args->pair->value->type == tt_mention) {
+  if (args->pair->value->type == tt_mention &&
+      args->pair->next->type == tt_pair &&
+      args->pair->next->pair->value->type == tt_lambda) {  // Standard syntax: (define sqr (lambda (x) (* x x)))
     name = strdup(args->pair->value->mention);
     func = duplicate_expression(args->pair->next->pair->value);
-  } else if (args->pair->value->type == tt_pair) {
+  } else if (args->pair->value->type == tt_pair) { // Sugar syntax: (define (sqr x) (* x x)) 
     SExpression *namewargs = args->pair->value;
     SExpression *body = args->pair->next->pair->value;
     func = alloc_term(tt_lambda);
@@ -27,41 +32,37 @@ SExpression *handle_define(SExpression *args) {
     func->lambda->args = duplicate_expression(namewargs->pair->next);
     func->lambda->body = duplicate_expression(body);
     func->lambda->arity = list_length(func->lambda->args); 
-  } else
+  } else {
+    report_error("Defining non-function value.");
     return NULL;
-  //printf("Handling define:\n");
-  //printf("Name is %s.\n", name);
-  //printf("Args:"); print_expression(l->lambda->args);
-  //printf("Body:"); print_expression(l->lambda->body);
-  //printf("Arity = %d.\n", l->lambda->arity);
+  }
+  if (ht_lookup(UserLibrary, name)) {
+    report_error("Name %s is already defined.", name);
+    return NULL;
+  }    
   ht_insert(UserLibrary, name, func);
   return alloc_term(tt_nil);
 }
 
 
 SExpression *handle_if(SExpression *args) {
-  SExpression *predic = (args->pair->value) ? duplicate_expression(args->pair->value) : NULL,
-    *ifbranch = (args->pair->next->pair->value) ? duplicate_expression(args->pair->next->pair->value) : NULL,
-    *elsebranch = (args->pair->next->pair->next) ? duplicate_expression(args->pair->next->pair->next->pair->value) : NULL;
-  //printf("Handling if.\n");
-  //printf("Predicate:\t"); print_expression(predic);
-  //printf("If-branch:\t"); print_expression(ifbranch);
-  //printf("Else-branch:\t"); print_expression(elsebranch);
-  if (!predic ||
-      !ifbranch ||
-      !elsebranch)
+  int arg_count = list_length(args);
+  if (arg_count != 3) {
+    report_error("If takes exactly three arguments, not %d", arg_count);
     return NULL;
-  //printf("Evaluating predicate.\n");
-  predic = eval(predic);
-  if ((predic->type == tt_nil) ||
-      ((predic->type == tt_bool) &&
-       (predic->boolean == false))) {
-    //printf("Evaluating else-branch.\n");
-    return eval(elsebranch);
-  } else {
-    //printf("Evaluating if-branch.\n");
-    return eval(ifbranch);
   }
+  SExpression *predicate = args->pair->value,
+    *ifbranch = args->pair->next->pair->value,
+    *elsebranch = args->pair->next->pair->next->pair->value;
+  predicate = eval(predicate);
+  if (!predicate)
+    return NULL;
+  else if ((predicate->type == tt_nil) ||
+	   ((predicate->type == tt_bool) &&
+	    (predicate->boolean == false)))
+    return eval(elsebranch);
+  else
+    return eval(ifbranch);
 }
 
 // Comparison functions
@@ -214,8 +215,10 @@ SExpression *handle_mult(SExpression *args) {
     else if (tmp->type == tt_float) {
       all_ints = 0;
       product *= tmp->real;
-    } else
+    } else {
+      report_error("Multiplying non-integer or non-float value");
       return NULL;
+    }
     current = current->pair->next;
   }
   SExpression *result = NULL;
@@ -243,8 +246,10 @@ SExpression *handle_plus(SExpression *args) {
     else if (tmp->type == tt_float) {
       all_ints = 0;
       sum += tmp->real;
-    } else
+    } else {
+      report_error("Summing non-integer or non-float value");
       return NULL;
+    }
     current = current->pair->next;
   }
   SExpression *result = NULL;
@@ -271,8 +276,10 @@ SExpression *handle_minus(SExpression *args) {
   else if (start->type == tt_float) {
     all_ints = 0;
     diff = start->real;
-  } else
+  } else {
+    report_error("Minus got non-integer or non-float value");
     return NULL;
+  }
   if (!args->pair->next)
     diff = -diff;
   else {
@@ -284,8 +291,10 @@ SExpression *handle_minus(SExpression *args) {
       else if (tmp->type == tt_float) {
 	all_ints = 0;
 	diff -= tmp->real;
-      } else
+      } else {
+	report_error("Minus got non-integer or non-float value");
 	return NULL;
+      }
       current = current->pair->next;
     }
   }
@@ -312,8 +321,10 @@ SExpression *handle_divide(SExpression *args) {
     quotient = dividend->integer;
   else if (dividend->type == tt_float)
     quotient = dividend->real;
-  else
+  else {
+    report_error("Dividing non-integer or non-float value");
     return NULL;
+  }
   SExpression *current = args->pair->next, *tmp;
   while (current) {
     tmp = eval(current->pair->value);
@@ -321,8 +332,10 @@ SExpression *handle_divide(SExpression *args) {
       quotient /= (double) tmp->integer;
     else if (tmp->type == tt_float)
       quotient -= tmp->real;
-    else
+    else {
+      report_error("Dividing non-integer or non-float value");
       return NULL;
+    }
     current = current->pair->next;
   }
   SExpression *result = alloc_term(tt_float);
@@ -336,16 +349,20 @@ SExpression *handle_div(SExpression *args) {
       args->type != tt_pair)
     return NULL;
   SExpression *dividend = eval(args->pair->value);
-  if (dividend->type != tt_int) 
+  if (dividend->type != tt_int) {
+    report_error("Dividing non-integer or non-float value");
     return NULL;
+  }
   long int quotient = dividend->integer;
   SExpression *current = args->pair->next, *tmp;
   while (current) {
     tmp = eval(current->pair->value);
     if (tmp->type == tt_int)
       quotient /= tmp->integer;
-    else
+    else {
+      report_error("Dividing non-integer or non-float value");
       return NULL;
+    }
     current = current->pair->next;
   }
   SExpression *result = alloc_term(tt_int);
@@ -359,16 +376,20 @@ SExpression *handle_remainder(SExpression *args) {
       args->type != tt_pair)
     return NULL;
   SExpression *dividend = eval(args->pair->value);
-  if (dividend->type != tt_int) 
+  if (dividend->type != tt_int) {
+    report_error("Dividing non-integer or non-float value");
     return NULL;
+  }
   long int remainder = dividend->integer;
   SExpression *current = args->pair->next, *tmp;
   while (current) {
     tmp = eval(current->pair->value);
     if (tmp->type == tt_int)
       remainder %= tmp->integer;
-    else
+    else {
+      report_error("Dividing non-integer or non-float value");
       return NULL;
+    }
     current = current->pair->next;
   }
   SExpression *result = alloc_term(tt_int);
@@ -429,8 +450,10 @@ SExpression *handle_cons(SExpression *args) {
     result->pair->next = list_arg;
   } else if (list_arg->type == tt_nil)
     ;//do nothing
-  else
+  else {
+    report_error("Second argument of cons must be either list or nil");
     return NULL;
+  }
   return result;
 }
 

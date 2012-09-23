@@ -10,4 +10,7 @@ void dealloc_expression(SExpression *term);
 
 SExpression *duplicate_expression(SExpression *head);
 int list_length(SExpression *list);
+
+void report_error(char *format_string, ...);
+
 #endif

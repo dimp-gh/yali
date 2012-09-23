@@ -23,8 +23,7 @@ void repl() {
     result = eval(test);
     if (result) {
       printf("Eval = "); print_expression(result);
-    } else
-      printf("Evaluation error.\n");
+    }
   } while (strcmp(buffer, "(exit)") != 0);
 }
 

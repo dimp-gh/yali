@@ -5,6 +5,7 @@
 #include "common.h"
 #include "corelib.h"
 
+
 extern SymbolTable *CoreLibrary;
 SymbolTable *UserLibrary = NULL;
 
@@ -58,8 +59,10 @@ SExpression *eval(SExpression *expr) {
       // special forms check end
       else {
 	SExpression *function = ht_lookup(UserLibrary, call);
-	if (!function) // undefined name
+	if (!function) { // undefined name
+	  report_error("Undefined name: %s.", call);
 	  return NULL;
+	}
 	return apply(function, args);
       }
     } else if (head->type == tt_lambda) {
@@ -72,8 +75,10 @@ SExpression *eval(SExpression *expr) {
 
     
 SExpression *substitute_mention(SExpression *source, char *key, SExpression *value) {
-  if (!source)
+  if (!source) {
+    report_error("Substituting in empty expression.");
     return NULL;
+  }
   if (source->type == tt_mention &&
       strcmp(source->mention, key) == 0) {
     switch (value->type) {
@@ -163,8 +168,10 @@ SExpression *apply(SExpression *function, SExpression *args) {
 				       args);
     //printf("After substitution: "); print_expression(subs);
     return eval(subs);
-  } else
+  } else {
+    report_error("Function arity doesn't match argument list length.");
     return NULL;
+  }
 }
 
 
