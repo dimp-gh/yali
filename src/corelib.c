@@ -215,8 +215,10 @@ SExpression *handle_mult(SExpression *args) {
     else if (tmp->type == tt_float) {
       all_ints = 0;
       product *= tmp->real;
-    } else
+    } else {
+      report_error("Multiplying non-integer or non-float value");
       return NULL;
+    }
     current = current->pair->next;
   }
   SExpression *result = NULL;
@@ -244,8 +246,10 @@ SExpression *handle_plus(SExpression *args) {
     else if (tmp->type == tt_float) {
       all_ints = 0;
       sum += tmp->real;
-    } else
+    } else {
+      report_error("Summing non-integer or non-float value");
       return NULL;
+    }
     current = current->pair->next;
   }
   SExpression *result = NULL;
@@ -272,8 +276,10 @@ SExpression *handle_minus(SExpression *args) {
   else if (start->type == tt_float) {
     all_ints = 0;
     diff = start->real;
-  } else
+  } else {
+    report_error("Minus got non-integer or non-float value");
     return NULL;
+  }
   if (!args->pair->next)
     diff = -diff;
   else {
@@ -285,8 +291,10 @@ SExpression *handle_minus(SExpression *args) {
       else if (tmp->type == tt_float) {
 	all_ints = 0;
 	diff -= tmp->real;
-      } else
+      } else {
+	report_error("Minus got non-integer or non-float value");
 	return NULL;
+      }
       current = current->pair->next;
     }
   }
@@ -313,8 +321,10 @@ SExpression *handle_divide(SExpression *args) {
     quotient = dividend->integer;
   else if (dividend->type == tt_float)
     quotient = dividend->real;
-  else
+  else {
+    report_error("Dividing non-integer or non-float value");
     return NULL;
+  }
   SExpression *current = args->pair->next, *tmp;
   while (current) {
     tmp = eval(current->pair->value);
@@ -322,8 +332,10 @@ SExpression *handle_divide(SExpression *args) {
       quotient /= (double) tmp->integer;
     else if (tmp->type == tt_float)
       quotient -= tmp->real;
-    else
+    else {
+      report_error("Dividing non-integer or non-float value");
       return NULL;
+    }
     current = current->pair->next;
   }
   SExpression *result = alloc_term(tt_float);
@@ -337,16 +349,20 @@ SExpression *handle_div(SExpression *args) {
       args->type != tt_pair)
     return NULL;
   SExpression *dividend = eval(args->pair->value);
-  if (dividend->type != tt_int) 
+  if (dividend->type != tt_int) {
+    report_error("Dividing non-integer or non-float value");
     return NULL;
+  }
   long int quotient = dividend->integer;
   SExpression *current = args->pair->next, *tmp;
   while (current) {
     tmp = eval(current->pair->value);
     if (tmp->type == tt_int)
       quotient /= tmp->integer;
-    else
+    else {
+      report_error("Dividing non-integer or non-float value");
       return NULL;
+    }
     current = current->pair->next;
   }
   SExpression *result = alloc_term(tt_int);
@@ -360,16 +376,20 @@ SExpression *handle_remainder(SExpression *args) {
       args->type != tt_pair)
     return NULL;
   SExpression *dividend = eval(args->pair->value);
-  if (dividend->type != tt_int) 
+  if (dividend->type != tt_int) {
+    report_error("Dividing non-integer or non-float value");
     return NULL;
+  }
   long int remainder = dividend->integer;
   SExpression *current = args->pair->next, *tmp;
   while (current) {
     tmp = eval(current->pair->value);
     if (tmp->type == tt_int)
       remainder %= tmp->integer;
-    else
+    else {
+      report_error("Dividing non-integer or non-float value");
       return NULL;
+    }
     current = current->pair->next;
   }
   SExpression *result = alloc_term(tt_int);
@@ -430,8 +450,10 @@ SExpression *handle_cons(SExpression *args) {
     result->pair->next = list_arg;
   } else if (list_arg->type == tt_nil)
     ;//do nothing
-  else
+  else {
+    report_error("Second argument of cons must be either list or nil");
     return NULL;
+  }
   return result;
 }
 
