@@ -16,7 +16,7 @@ void repl() {
   init_libraries();
   do {
     printf(">>> ");
-    gets(buffer);
+    fgets(buffer, sizeof(buffer), stdin);
     tokens = lex(buffer);
     test = parse(tokens);
     printf("Expression: "); print_expression(test);
